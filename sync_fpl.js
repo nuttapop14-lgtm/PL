@@ -95,9 +95,19 @@ async function sync() {
     const gwWinners = {};
     let maxGW = 1;
 
+    // Maintain consistent team IDs based on existing teams if available
+    let existingTeams = [];
+    try {
+      if (fs.existsSync(JSON_FILE)) {
+        const oldData = JSON.parse(fs.readFileSync(JSON_FILE, 'utf8'));
+        if (oldData.teams && Array.isArray(oldData.teams)) existingTeams = oldData.teams;
+      }
+    } catch (e) {}
+
     for (let i = 0; i < results.length; i++) {
       const r = results[i];
-      const teamId = i + 1;
+      const matchTeam = existingTeams.find(t => t.entry === r.entry);
+      const teamId = matchTeam ? matchTeam.id : (i + 1);
 
       teams.push({
         id: teamId,
@@ -111,20 +121,38 @@ async function sync() {
         const hist = await fetchJson(`https://fantasy.premierleague.com/api/entry/${r.entry}/history/`);
         const gwMap = {};
         if (hist.current && hist.current.length > 0) {
-          hist.current.forEach(g => {
-            gwMap['gw' + g.event] = g.points;
+          const lastIdx = hist.current.length - 1;
+          let runningSum = 0;
+
+          // Previous completed gameweeks: net points (points - transfer cost)
+          for (let j = 0; j < lastIdx; j++) {
+            const g = hist.current[j];
+            const netPts = g.points - (g.event_transfers_cost || 0);
+            gwMap['gw' + g.event] = netPts;
+            runningSum += netPts;
             if (g.event > maxGW) maxGW = g.event;
-          });
+          }
+
+          // Current active gameweek:
+          // r.total is the official authoritative live total from the league standings.
+          // Current GW points is (r.total - runningSum) which accurately includes
+          // live bonus points, autosubs, and transfer hit deductions!
+          const currentG = hist.current[lastIdx];
+          const currentGWNet = (r.total !== undefined && r.total !== null) ? (r.total - runningSum) : (currentG.points - (currentG.event_transfers_cost || 0));
+          gwMap['gw' + currentG.event] = currentGWNet;
+          if (currentG.event > maxGW) maxGW = currentG.event;
         } else {
-          gwMap['gw1'] = r.event_total || r.total;
+          gwMap['gw1'] = (r.event_total !== undefined) ? r.event_total : r.total;
         }
         scores[teamId] = gwMap;
       } catch (err) {
-        scores[teamId] = { gw1: r.event_total || r.total };
+        scores[teamId] = { gw1: (r.event_total !== undefined) ? r.event_total : r.total };
       }
 
       process.stdout.write(`   ✓ [${i + 1}/${results.length}] ${r.entry_name} (${r.player_name})\n`);
     }
+
+    teams.sort((a, b) => a.id - b.id);
 
     // Determine Winners for each GW
     for (let gw = 1; gw <= maxGW; gw++) {
