@@ -13,18 +13,18 @@ echo    📱 App ID:  1:404492465636:web:6ac34959cbc3fd873bc3f1
 echo    🌐 URL:     https://pl26-27.web.app
 echo.
 
-call npx --yes firebase-tools deploy --only hosting --project pl26-27
+call firebase deploy --only hosting --project pl26-27
 
 if %errorlevel% neq 0 (
     echo.
-    echo ⚠️ จำเป็นต้องยืนยันสิทธิ์บัญชี Google ในครั้งแรก
-    echo 🌐 กำลังเปิดหน้าต่างเบราว์เซอร์เพื่อล็อกอิน...
+    echo ⚠️ บัญชีปัจจุบันไม่มีสิทธิ์เข้าถึงโปรเจกต์ pl26-27
+    echo 🌐 กำลังเปิดเบราว์เซอร์เพื่อเข้าสู่ระบบบัญชี Google ของโปรเจกต์ pl26-27...
     echo.
-    call npx --yes firebase-tools login
+    call firebase login --reauth
     echo.
     echo 🚀 กำลัง Deploy ไฟล์ขึ้น Hosting...
     echo.
-    call npx --yes firebase-tools deploy --only hosting --project pl26-27
+    call firebase deploy --only hosting --project pl26-27
 )
 
 echo.
