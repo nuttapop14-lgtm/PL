@@ -1,0 +1,3157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>PIRUN Premier League 2026–2027</title>
+  
+  <!-- Google Fonts: Kanit & Prompt for clean Thai/English typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK (Compat v10 for Realtime Database & Cloud Slip Storage) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <style>
+    :root {
+      /* Premier League Signature Palette */
+      --pl-purple: #38003c;
+      --pl-purple-light: #590260;
+      --pl-purple-dark: #240027;
+      --pl-green: #00ff85;
+      --pl-green-dark: #059669;
+      --pl-green-light: #d1fae5;
+      --pl-pink: #ff2882;
+      --pl-cyan: #04f5ff;
+      --pl-gold: #f59e0b;
+      --pl-silver: #94a3b8;
+      --pl-bronze: #d97706;
+      
+      /* UI Theme */
+      --pl-bg: #f3f4f8;
+      --pl-card: #ffffff;
+      --pl-border: #e2e5ea;
+      --pl-border-light: #edf0f4;
+      --pl-text: #1e1b2e;
+      --pl-text-muted: #64748b;
+      --pl-text-light: #94a3b8;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(56,0,60,0.06);
+      --shadow-lg: 0 8px 24px rgba(56,0,60,0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--pl-bg);
+      color: var(--pl-text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Utilites */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .font-num { font-family: 'Prompt', 'Kanit', sans-serif; font-variant-numeric: tabular-nums; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge-paid { background: #d1fae5; color: #059669; }
+    .badge-pending { background: #fef3c7; color: #d97706; }
+    .badge-unpaid { background: #fee2e2; color: #dc2626; }
+    .badge-gw { background: var(--pl-purple); color: white; }
+    .badge-winner { background: linear-gradient(135deg, #ffd700, #f59e0b); color: #78350f; font-weight: 600; }
+    .badge-cloud { background: #0284c7; color: white; }
+
+    /* Main App Layout */
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Desktop Sidebar & Grid */
+    @media (min-width: 860px) {
+      .app-container {
+        display: flex;
+        gap: 24px;
+        padding: 24px;
+        align-items: flex-start;
+      }
+
+      .sidebar {
+        width: 260px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 24px;
+        background: var(--pl-card);
+        border: 1px solid var(--pl-border);
+        border-radius: var(--radius-lg);
+        padding: 20px 16px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .main-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .bottom-nav { display: none !important; }
+      .mobile-top-bar { display: none !important; }
+      
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .dashboard-split {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 16px;
+      }
+    }
+
+    /* Mobile Header & Bottom Nav */
+    @media (max-width: 859px) {
+      .sidebar { display: none !important; }
+      .app-container {
+        padding: 12px;
+        padding-top: 68px;
+        padding-bottom: calc(76px + env(safe-area-inset-bottom, 12px));
+      }
+
+      .mobile-top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(135deg, var(--pl-purple-dark) 0%, var(--pl-purple) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 999;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      }
+
+      .mobile-top-bar .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+      }
+
+      .mobile-top-bar .actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mobile-top-bar .btn-team-switch {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: white;
+        padding: 6px 12px;
+        border-radius: var(--radius-full);
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        max-width: 140px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .mobile-top-bar .btn-admin-icon {
+        background: rgba(255,255,255,0.15);
+        border: none;
+        color: white;
+        width: 34px;
+        height: 34px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        cursor: pointer;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid var(--pl-border);
+        display: flex;
+        justify-content: space-around;
+        padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 6px)) 4px;
+        z-index: 1000;
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+      }
+
+      .bottom-nav .nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 2px;
+        background: none;
+        border: none;
+        color: var(--pl-text-muted);
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: var(--radius-sm);
+      }
+
+      .bottom-nav .nav-item .nav-icon {
+        font-size: 19px;
+        margin-bottom: 2px;
+        transition: transform 0.2s;
+      }
+
+      .bottom-nav .nav-item.active {
+        color: var(--pl-purple);
+        font-weight: 600;
+      }
+
+      .bottom-nav .nav-item.active .nav-icon {
+        transform: scale(1.15);
+      }
+    }
+
+    /* Pre-Login Team Selection Screen */
+    .login-container {
+      max-width: 540px;
+      margin: 30px auto;
+      padding: 16px;
+    }
+    .login-card {
+      background: var(--pl-card);
+      border: 1px solid var(--pl-border);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+    .login-header {
+      background: linear-gradient(135deg, var(--pl-purple-dark) 0%, var(--pl-purple) 100%);
+      color: white;
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+    }
+    .login-header .pl-logo {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+    .login-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .login-header p {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    .login-team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .login-team-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 10px;
+      border: 1.5px solid var(--pl-border);
+      border-radius: var(--radius-md);
+      background: #fafbfd;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--pl-text);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .login-team-option:hover {
+      border-color: var(--pl-purple);
+      background: rgba(56,0,60,0.03);
+    }
+    .login-team-option.selected {
+      border-color: var(--pl-purple);
+      background: var(--pl-purple);
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(56,0,60,0.18);
+    }
+    .login-team-option.selected .team-opt-icon {
+      background: rgba(255,255,255,0.25);
+      color: white;
+    }
+    .team-opt-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: rgba(56,0,60,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar Components */
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--pl-border-light);
+      cursor: pointer;
+    }
+    .sidebar-brand .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--pl-purple) 0%, var(--pl-pink) 100%);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(56,0,60,0.2);
+    }
+    .sidebar-brand .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--pl-purple);
+      line-height: 1.2;
+    }
+    .sidebar-brand .brand-subtitle {
+      font-size: 12px;
+      color: var(--pl-text-muted);
+    }
+
+    /* User Profile Widget in Sidebar */
+    .user-team-widget {
+      background: linear-gradient(135deg, rgba(56,0,60,0.05) 0%, rgba(255,40,130,0.05) 100%);
+      border: 1px solid rgba(56,0,60,0.1);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .user-team-widget .widget-label {
+      font-size: 11px;
+      color: var(--pl-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    .user-team-widget .widget-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--pl-purple);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-team-widget .widget-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(56,0,60,0.15);
+      font-size: 12px;
+    }
+    .user-team-widget .btn-switch {
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px;
+      font-size: 12px;
+      background: white;
+      border: 1px solid var(--pl-border);
+      border-radius: var(--radius-sm);
+      color: var(--pl-purple);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .user-team-widget .btn-switch:hover {
+      background: var(--pl-purple);
+      color: white;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sidebar-nav button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: none;
+      color: var(--pl-text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .sidebar-nav button .icon {
+      font-size: 17px;
+      width: 22px;
+      text-align: center;
+    }
+    .sidebar-nav button:hover {
+      background: rgba(56,0,60,0.04);
+      color: var(--pl-purple);
+    }
+    .sidebar-nav button.active {
+      background: var(--pl-purple);
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(56,0,60,0.18);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--pl-card);
+      border: 1px solid var(--pl-border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pl-purple);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .card-action-link {
+      font-size: 12px;
+      color: var(--pl-purple);
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .card-action-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--pl-purple-dark) 0%, var(--pl-purple) 60%, var(--pl-purple-light) 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .hero-banner::after {
+      content: '⚽';
+      position: absolute;
+      right: -15px;
+      bottom: -25px;
+      font-size: 110px;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    .hero-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .hero-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .hero-subtitle {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    /* Winner Spotlight */
+    .winner-spotlight {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(0,255,133,0.15) 100%);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-top: 14px;
+      backdrop-filter: blur(8px);
+    }
+    .winner-trophy-box {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(245,158,11,0.4);
+    }
+    .winner-info {
+      flex: 1;
+    }
+    .winner-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pl-green);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .winner-team {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+    }
+    .winner-reward {
+      font-size: 13px;
+      color: rgba(255,255,255,0.9);
+      margin-top: 2px;
+    }
+
+    /* Tables & Responsive Scrolling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--pl-border-light);
+    }
+    .table-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      min-width: 320px;
+      white-space: nowrap;
+    }
+    .data-table th {
+      background: #fafbfd;
+      color: var(--pl-text-muted);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1.5px solid var(--pl-border);
+    }
+    .data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--pl-border-light);
+      color: var(--pl-text);
+    }
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+    .data-table tr:hover td {
+      background: rgba(56,0,60,0.02);
+    }
+    .data-table tr.my-team-row td {
+      background: rgba(0, 255, 133, 0.12) !important;
+      font-weight: 600;
+    }
+    .data-table tr.my-team-row td:first-child {
+      border-left: 4px solid var(--pl-green-dark);
+    }
+
+    .data-table .col-rank {
+      width: 44px;
+      text-align: center;
+      font-weight: 700;
+    }
+    .data-table .col-team {
+      font-weight: 500;
+      min-width: 130px;
+    }
+    .data-table .col-score {
+      text-align: right;
+      font-family: 'Prompt', 'Kanit', sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+    .data-table .col-total {
+      font-weight: 700;
+      color: var(--pl-purple);
+    }
+
+    /* Rank Medals */
+    .medal-1 { color: #f59e0b; font-weight: 700; }
+    .medal-2 { color: #64748b; font-weight: 700; }
+    .medal-3 { color: #b45309; font-weight: 700; }
+
+    /* Finance Statistics */
+    .finance-overview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .finance-stat-card {
+      background: #fafbfd;
+      border: 1px solid var(--pl-border-light);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .finance-stat-card .val {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .finance-stat-card .lbl {
+      font-size: 11px;
+      color: var(--pl-text-muted);
+      margin-top: 3px;
+    }
+
+    .status-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .status-summary-card {
+      text-align: center;
+      padding: 8px 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+    }
+    .status-summary-card.paid { background: #ecfdf5; border-color: #d1fae5; }
+    .status-summary-card.pending { background: #fffbeb; border-color: #fef3c7; }
+    .status-summary-card.unpaid { background: #fef2f2; border-color: #fee2e2; }
+    
+    .status-summary-card .count {
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Prompt', sans-serif;
+    }
+    .status-summary-card.paid .count { color: #059669; }
+    .status-summary-card.pending .count { color: #d97706; }
+    .status-summary-card.unpaid .count { color: #dc2626; }
+    .status-summary-card .label { font-size: 11px; color: var(--pl-text-muted); }
+
+    /* Prize Cards */
+    .prize-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .prize-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: #fafbfd;
+      border: 1px solid var(--pl-border-light);
+      transition: all 0.2s;
+    }
+    .prize-item:hover {
+      border-color: var(--pl-purple);
+      background: white;
+      box-shadow: var(--shadow-sm);
+    }
+    .prize-item .prize-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .prize-item.gw .prize-badge { background: linear-gradient(135deg, var(--pl-purple), var(--pl-purple-light)); color: white; }
+    .prize-item.month .prize-badge { background: linear-gradient(135deg, #059669, #00ff85); color: white; }
+    .prize-item.season-1 .prize-badge { background: linear-gradient(135deg, #f59e0b, #ffd700); color: #78350f; }
+    .prize-item.season-2 .prize-badge { background: linear-gradient(135deg, #94a3b8, #cbd5e1); color: #1e293b; }
+    .prize-item.season-3 .prize-badge { background: linear-gradient(135deg, #d97706, #f97316); color: white; }
+    
+    .prize-item .prize-content {
+      flex: 1;
+    }
+    .prize-item .prize-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pl-text);
+    }
+    .prize-item .prize-winner {
+      font-size: 12px;
+      color: var(--pl-text-muted);
+      margin-top: 2px;
+    }
+    .prize-item .prize-cash {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--pl-purple);
+      font-family: 'Prompt', 'Kanit', sans-serif;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .filter-tab {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      background: white;
+      border: 1px solid var(--pl-border);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--pl-text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover {
+      border-color: var(--pl-purple);
+      color: var(--pl-purple);
+    }
+    .filter-tab.active {
+      background: var(--pl-purple);
+      color: white;
+      border-color: var(--pl-purple);
+      font-weight: 600;
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--pl-purple);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--pl-purple-light);
+      box-shadow: 0 4px 10px rgba(56,0,60,0.2);
+    }
+    .btn-success {
+      background: #059669;
+      color: white;
+    }
+    .btn-success:hover { background: #047857; }
+    .btn-danger-outline {
+      background: white;
+      color: #dc2626;
+      border-color: #dc2626;
+    }
+    .btn-danger-outline:hover { background: #fee2e2; }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .slip-btn {
+      color: var(--pl-purple);
+      font-weight: 600;
+      font-size: 12px;
+      background: rgba(56,0,60,0.06);
+      border: none;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slip-btn:hover {
+      background: var(--pl-purple);
+      color: white;
+    }
+
+    /* My Team Page Styles */
+    .stat-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--pl-border-light);
+      font-size: 14px;
+    }
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+    .stat-item .stat-label {
+      color: var(--pl-text-muted);
+    }
+    .stat-item .stat-value {
+      font-weight: 600;
+      font-family: 'Prompt', 'Kanit', sans-serif;
+    }
+    .val-green { color: #059669; }
+    .val-red { color: #dc2626; }
+    .val-orange { color: #d97706; }
+
+    /* Upload Area */
+    .upload-box {
+      border: 2px dashed var(--pl-purple);
+      background: rgba(56,0,60,0.02);
+      border-radius: var(--radius-lg);
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upload-box:hover {
+      background: rgba(56,0,60,0.05);
+      border-color: var(--pl-pink);
+    }
+    .upload-box .upload-icon {
+      font-size: 30px;
+      margin-bottom: 4px;
+    }
+    .upload-box .upload-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--pl-purple);
+    }
+    .upload-box .upload-hint {
+      font-size: 12px;
+      color: var(--pl-text-muted);
+      margin-top: 4px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-lg);
+      max-width: 460px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      animation: modalPop 0.25s ease-out;
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      padding: 16px 20px;
+      background: var(--pl-purple);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .modal-header .btn-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    .modal-header .btn-close:hover { opacity: 1; }
+    .modal-body {
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      padding: 12px 20px;
+      background: #fafbfd;
+      border-top: 1px solid var(--pl-border-light);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Slip Mockup inside Modal */
+    .slip-mockup {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .slip-mockup .bank-logo {
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+    .slip-mockup .slip-amount {
+      font-size: 24px;
+      font-weight: 700;
+      color: #059669;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    /* Admin Slips Review */
+    .admin-slip-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      background: #fafbfd;
+      border: 1px solid var(--pl-border-light);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+    }
+    @media (min-width: 600px) {
+      .admin-slip-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    .admin-slip-card .info .team {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--pl-text);
+    }
+    .admin-slip-card .info .meta {
+      font-size: 12px;
+      color: var(--pl-text-muted);
+      margin-top: 2px;
+    }
+    .admin-slip-card .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Team Switch Dialog Form */
+    .team-select-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 4px;
+      margin-top: 10px;
+    }
+    .team-select-item {
+      padding: 10px 8px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--pl-border);
+      background: #fafbfd;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .team-select-item:hover {
+      border-color: var(--pl-purple);
+      background: white;
+      color: var(--pl-purple);
+    }
+    .team-select-item.selected {
+      border-color: var(--pl-purple);
+      background: var(--pl-purple);
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Page Titles */
+    .page-head {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .page-head h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--pl-purple);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* PIN input styled */
+    .pin-input {
+      width: 100%;
+      max-width: 220px;
+      letter-spacing: 8px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      padding: 10px;
+      border: 2px solid var(--pl-purple);
+      border-radius: var(--radius-md);
+      outline: none;
+      font-family: 'Prompt', monospace;
+      margin: 12px auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= PRE-LOGIN: WELCOME & TEAM SELECT PAGE ================= -->
+  <div id="page-select" class="login-container hidden">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="pl-logo">🏆</div>
+        <h1>PIRUN PREMIER LEAGUE</h1>
+        <p>ฤดูกาล 2026–2027 · ลีกแฟนตาซีฟุตบอล (16 ทีม)</p>
+      </div>
+
+      <h2 style="font-size: 17px; font-weight: 600; color: var(--pl-purple); margin-bottom: 6px;">
+        👤 เลือกทีมของคุณเพื่อเริ่มต้นใช้งาน
+      </h2>
+      <p style="font-size: 12.5px; color: var(--pl-text-muted); margin-bottom: 16px;">
+        แตะเลือกทีมของคุณเพื่อดูคะแนน อันดับ และสถานะการชำระเงินส่วนตัว
+      </p>
+
+      <div class="login-team-grid" id="loginTeamGrid"></div>
+
+      <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 15px;" onclick="confirmLoginTeam()">
+          🚀 เข้าสู่ระบบ (เข้าสู่ทีมของฉัน)
+        </button>
+        <button class="btn" style="width: 100%; background: #e2e8f0; color: var(--pl-text-muted); font-size: 13px;" onclick="continueAsGuest()">
+          👀 ดูตารางคะแนนในฐานะผู้ชมทั่วไป
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Fixed Top Bar -->
+  <header class="mobile-top-bar" id="mobileTopBar">
+    <div class="brand" onclick="goTo('home')">
+      <span>⚽</span>
+      <span>PIRUN PL</span>
+    </div>
+    <div class="actions">
+      <button class="btn-team-switch" onclick="openTeamModal()">
+        <span>👤</span>
+        <span id="mobileActiveTeamName">เลือกทีม</span>
+      </button>
+      <button class="btn-admin-icon" onclick="requestAdminAccess()" title="หน้าแอดมิน (รหัส 1234)">
+        ⚙️
+      </button>
+    </div>
+  </header>
+
+  <div class="app-container" id="appMainWrapper">
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand" onclick="goTo('home')">
+        <div class="logo-icon">⚽</div>
+        <div>
+          <div class="brand-title">PIRUN PL</div>
+          <div class="brand-subtitle">ฤดูกาล 2026–2027</div>
+        </div>
+      </div>
+
+      <!-- Current Selected Team Card -->
+      <div class="user-team-widget">
+        <div class="widget-label">ทีมของคุณ</div>
+        <div class="widget-name" id="sidebarTeamName">กำลังโหลด...</div>
+        <div class="widget-stats">
+          <span>อันดับ: <b id="sidebarTeamRank" class="font-num">-</b></span>
+          <span>คะแนนรวม: <b id="sidebarTeamPoints" class="font-num">-</b></span>
+        </div>
+        <button class="btn-switch" onclick="openTeamModal()">🔄 สลับทีม</button>
+      </div>
+
+      <!-- Sidebar Navigation Menu -->
+      <nav class="sidebar-nav">
+        <button onclick="goTo('home')" id="nav-home" class="active">
+          <span class="icon">📊</span>
+          <span>หน้าหลัก (Dashboard)</span>
+        </button>
+        <button onclick="goTo('standings')" id="nav-standings">
+          <span class="icon">📈</span>
+          <span>ตารางคะแนน (16 ทีม)</span>
+        </button>
+        <button onclick="goTo('finance')" id="nav-finance">
+          <span class="icon">💰</span>
+          <span>การเงิน & สลิป</span>
+        </button>
+        <button onclick="goTo('prizes')" id="nav-prizes">
+          <span class="icon">🏆</span>
+          <span>รางวัลประจำฤดูกาล</span>
+        </button>
+        <button onclick="goTo('myteam')" id="nav-myteam">
+          <span class="icon">👤</span>
+          <span>ทีมของฉัน</span>
+        </button>
+        <button onclick="goTo('history')" id="nav-history">
+          <span class="icon">📜</span>
+          <span>กติกาการแข่งขัน</span>
+        </button>
+        <div style="margin: 12px 0 8px 0; border-top: 1px solid var(--pl-border-light); padding-top: 8px;"></div>
+        <button onclick="requestAdminAccess()" id="nav-admin">
+          <span class="icon">⚙️</span>
+          <span>จัดการระบบ (Admin 🔒)</span>
+        </button>
+        <button onclick="openTeamModal()" style="color: #6366f1;">
+          <span class="icon">🔄</span>
+          <span>เลือกทีมของฉัน</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- ================= 1. PAGE: HOME (DASHBOARD) ================= -->
+      <section id="page-home">
+        <!-- Hero Winner Banner -->
+        <div class="hero-banner">
+          <div class="hero-header">
+            <div>
+              <div class="hero-title">🏆 PIRUN PREMIER LEAGUE</div>
+              <div class="hero-subtitle">ระบบบริหารจัดการผลการแข่งขัน & การเงิน (League 1576349)</div>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <span class="badge badge-cloud hidden" id="cloudLiveBadge">☁️ Firebase Realtime</span>
+              <span class="badge badge-winner" id="heroGwBadge">✨ GW ล่าสุด: GW1</span>
+            </div>
+          </div>
+
+          <div class="winner-spotlight">
+            <div class="winner-trophy-box">🏆</div>
+            <div class="winner-info">
+              <div class="winner-tag" id="heroWinnerTag">ผู้ชนะประจำสัปดาห์ (GW1 Winner)</div>
+              <div class="winner-team" id="heroWinnerName">Pikpiklok15</div>
+              <div class="winner-reward" id="heroWinnerReward">รับเงินรางวัล <b>320 ฿</b> (93 คะแนน)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Summary for My Team -->
+        <div class="card" style="background: linear-gradient(135deg, rgba(56,0,60,0.03) 0%, rgba(0,255,133,0.06) 100%); border-color: rgba(56,0,60,0.12);">
+          <div class="card-header">
+            <div class="card-title">👤 สรุปสถานะทีมของคุณ: <span id="homeMyTeamTitle" style="color:var(--pl-purple); font-weight:700;">-</span></div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm" style="background:white; border:1px solid var(--pl-border); color:var(--pl-purple);" onclick="openTeamModal()">🔄 สลับทีม</button>
+              <button class="btn btn-sm btn-primary" onclick="goTo('myteam')">ดูทีมของฉัน →</button>
+            </div>
+          </div>
+          <div class="finance-overview">
+            <div class="finance-stat-card">
+              <div class="val font-num" id="homeMyRank">-</div>
+              <div class="lbl">อันดับปัจจุบัน</div>
+            </div>
+            <div class="finance-stat-card">
+              <div class="val font-num" id="homeMyScore">-</div>
+              <div class="lbl">คะแนนรวม</div>
+            </div>
+            <div class="finance-stat-card">
+              <div class="val font-num" id="homeMyPending" style="color:#d97706;">-</div>
+              <div class="lbl">ยอดค้างจ่ายสัปดาห์นี้</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standings Table for ALL Teams on Dashboard -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📈 ตารางคะแนนรวมทุกลีก (All 16 Teams Standings)</div>
+              <div style="font-size:12px; color:var(--pl-text-muted); margin-top:2px;">
+                คะแนนสดซิงค์จาก Fantasy Premier League (League 1576349)
+              </div>
+            </div>
+            <input type="text" id="dashboardSearchInput" placeholder="🔍 ค้นหาชื่อทีม..." 
+              style="padding: 6px 12px; border: 1px solid var(--pl-border); border-radius: var(--radius-sm); font-size: 12px; width: 100%; max-width: 200px;"
+              oninput="filterDashboardTable()">
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="homeStandingsTable"></table>
+          </div>
+        </div>
+
+        <!-- League Finance Widget -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="dashFinanceCardTitle">💰 สรุปการเงินสัปดาห์ปัจจุบัน (GW1 · 16 ทีม x 20 บาท)</div>
+            <a class="card-action-link" onclick="goTo('finance')">ดูประวัติสลิปทั้งหมด →</a>
+          </div>
+          
+          <div class="finance-overview">
+            <div class="finance-stat-card">
+              <div class="val font-num" id="statTotalDue">320</div>
+              <div class="lbl">ยอดเรียกเก็บ (฿)</div>
+            </div>
+            <div class="finance-stat-card">
+              <div class="val font-num val-green" id="statTotalPaid">0</div>
+              <div class="lbl">ชำระแล้ว (฿)</div>
+            </div>
+            <div class="finance-stat-card">
+              <div class="val font-num val-red" id="statTotalUnpaid">320</div>
+              <div class="lbl">ค้างชำระ (฿)</div>
+            </div>
+          </div>
+
+          <div class="status-summary-grid">
+            <div class="status-summary-card paid">
+              <div class="count" id="countPaid">0</div>
+              <div class="label">จ่ายแล้ว</div>
+            </div>
+            <div class="status-summary-card pending">
+              <div class="count" id="countPending">0</div>
+              <div class="label">รอตรวจ</div>
+            </div>
+            <div class="status-summary-card unpaid">
+              <div class="count" id="countUnpaid">16</div>
+              <div class="label">ยังไม่จ่าย</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. PAGE: STANDINGS ================= -->
+      <section id="page-standings" class="hidden">
+        <div class="page-head">
+          <h1>📈 ตารางคะแนนรวม</h1>
+          <span class="badge badge-gw">16 ทีม</span>
+        </div>
+
+        <div class="card">
+          <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+            <input type="text" id="tableSearchInput" placeholder="🔍 ค้นหาชื่อทีม..." 
+              style="width: 100%; max-width: 280px; padding: 8px 12px; border: 1px solid var(--pl-border); border-radius: var(--radius-sm); font-size: 13px;"
+              oninput="filterStandingsTable()">
+          </div>
+
+          <div class="table-container">
+            <table class="data-table" id="fullStandingsTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. PAGE: FINANCE ================= -->
+      <section id="page-finance" class="hidden">
+        <div class="page-head">
+          <h1>💰 สถานะการเงิน & สลิป</h1>
+        </div>
+
+        <!-- Dynamic GW Selector Tabs (Only shows completed/active weeks) -->
+        <div class="filter-tabs" id="financeFilterTabs"></div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title" id="financeCardTitle">GW1 — รายการเรียกเก็บ 20 บาท/ทีม</div>
+              <div style="font-size:12px; color:var(--pl-text-muted); margin-top:2px;" id="financeCardSub">
+                🏆 ผู้ชนะ: Pikpiklok15 · 👥 16 ทีม · 💵 ยอดรวม 320 บาท
+              </div>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table" id="financeTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. PAGE: PRIZES ================= -->
+      <section id="page-prizes" class="hidden">
+        <div class="page-head">
+          <h1>🏆 ทำเนียบรางวัล</h1>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ รางวัลประจำสัปดาห์ (Weekly Winners · 300 ฿ / GW (ผู้ชนะฟรี))</div>
+          </div>
+          <div class="prize-list" id="gwPrizeList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔥 รางวัลคะแนนรวมทุก 4 สัปดาห์ (4-Week Block Winners · 750 ฿ / รอบ (ผู้ชนะฟรี))</div>
+            <span class="badge badge-winner">เก็บเพิ่ม 50 ฿ / ทีม</span>
+          </div>
+          <div class="prize-list" id="blockPrizeList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👑 รางวัลปิดฤดูกาล (Season Final Prizes)</div>
+          </div>
+          <div class="prize-list">
+            <div class="prize-item season-1">
+              <div class="prize-badge">🥇</div>
+              <div class="prize-content">
+                <div class="prize-title">แชมป์ลีกอันดับ 1 (Champion)</div>
+                <div class="prize-winner">ถ้วยเกียรติยศ + เงินรางวัลสูงสุด</div>
+              </div>
+              <div class="prize-cash">5,000 ฿</div>
+            </div>
+            <div class="prize-item season-2">
+              <div class="prize-badge">🥈</div>
+              <div class="prize-content">
+                <div class="prize-title">รองชนะเลิศอันดับ 1 (Runner-Up)</div>
+                <div class="prize-winner">เงินรางวัลอันดับ 2</div>
+              </div>
+              <div class="prize-cash">2,500 ฿</div>
+            </div>
+            <div class="prize-item season-3">
+              <div class="prize-badge">🥉</div>
+              <div class="prize-content">
+                <div class="prize-title">รองชนะเลิศอันดับ 2 (3rd Place)</div>
+                <div class="prize-winner">เงินรางวัลอันดับ 3</div>
+              </div>
+              <div class="prize-cash">1,200 ฿</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. PAGE: MY TEAM ================= -->
+      <section id="page-myteam" class="hidden">
+        <div class="hero-banner" style="background: linear-gradient(135deg, var(--pl-purple) 0%, var(--pl-purple-light) 100%);">
+          <div class="hero-header">
+            <div>
+              <div class="hero-title" id="myPageTeamName">-</div>
+              <div class="hero-subtitle" id="myPageTeamRank">-</div>
+            </div>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,0.2); color:white;" onclick="openTeamModal()">🔄 สลับทีม</button>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Dynamic Points Summary (Shows only completed GWs) -->
+          <div class="card">
+            <div class="card-title">📊 สรุปคะแนนการแข่งขันของคุณ</div>
+            <div class="stat-list" id="myTeamScoresContainer"></div>
+          </div>
+
+          <!-- Financial status breakdown for completed weeks -->
+          <div class="card">
+            <div class="card-title">💰 สถานะการชำระเงินของคุณ</div>
+            <div class="stat-list" id="myTeamFinanceBreakdown"></div>
+          </div>
+        </div>
+
+        <!-- Upload Slip Card with Dynamic Round Selector -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📤 แจ้งชำระเงิน & แนบสลิปโอนเงิน</div>
+          </div>
+          
+          <div style="margin-bottom: 12px;">
+            <label style="font-size:12.5px; font-weight:600; color:var(--pl-text-muted); display:block; margin-bottom:4px;">
+              📌 เลือกรอบที่ต้องการชำระเงิน:
+            </label>
+            <select id="mySlipGwSelect" onchange="updateMyUploadCardUI()" 
+              style="width: 100%; max-width: 320px; padding: 8px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--pl-purple); font-size: 13.5px; font-weight: 500; outline: none;">
+            </select>
+          </div>
+
+          <div style="font-size:13px; color:var(--pl-text-muted); margin-bottom:12px;" id="myUploadRoundPrompt">
+            รายการชำระ: <b style="color:var(--pl-purple);">Gameweek 1 · ยอด 20 บาท</b> (พร้อมเพย์: 08x-xxx-xxxx)
+          </div>
+          
+          <input type="file" id="slipFileInput" accept="image/*" style="display:none;" onchange="handleSlipUpload(event)">
+          
+          <div class="upload-box" onclick="document.getElementById('slipFileInput').click()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text" id="uploadStatusText">แตะที่นี่เพื่อเลือกรูปภาพสลิปโอนเงิน</div>
+            <div class="upload-hint">ระบบจะอัปโหลดรูปสลิปจริงขึ้น Firebase Storage ส่งให้แอดมินตรวจทันที</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. PAGE: HISTORY ================= -->
+      <section id="page-history" class="hidden">
+        <div class="page-head">
+          <h1>📜 กติกาการแข่งขัน</h1>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📖 กติกาการแข่งขัน & การเงิน PIRUN PREMIER LEAGUE</div>
+          <div style="font-size:13.5px; color:var(--pl-text); line-height:1.8; margin-top:10px;">
+            <div style="margin-bottom:12px; padding:10px 12px; background:#fafbfd; border-radius:var(--radius-md); border-left:4px solid var(--pl-purple);">
+              ⚽ <b>1. ค่าเข้าและรางวัลประจำสัปดาห์ (Weekly Fee & Prize):</b><br>
+              • สมาชิกอีก 15 ทีม จ่ายคนละ <b>20 บาท / ทีม</b> รวมเป็นเงินรางวัล <b>300 ฿ / สัปดาห์</b><br>
+              • 👑 <b>ผู้จัดการทีมที่ได้คะแนนสูงสุดในสัปดาห์นั้น (ผู้ชนะ): ได้รับเงินรางวัล 300 ฿ และ "ไม่ต้องจ่ายค่าเข้า"</b>
+            </div>
+            <div style="margin-bottom:12px; padding:10px 12px; background:#fafbfd; border-radius:var(--radius-md); border-left:4px solid #f59e0b;">
+              🔥 <b>2. รางวัลคะแนนรวมทุก 4 สัปดาห์ (4-Week Sprint):</b><br>
+              • ทุกๆ 4 Gameweek (GW1–4, GW5–8, ...) สมาชิกอีก 15 ทีม จ่ายคนละ <b>50 บาท / ทีม</b> รวมเป็นเงินรางวัล <b>750 ฿ / รอบ</b><br>
+              • 👑 <b>ผู้ที่มีคะแนนรวม 4 สัปดาห์สูงสุด (ผู้ชนะรอบ): ได้รับเงินรางวัล 750 ฿ และ "ไม่ต้องจ่าย 50 บาท"</b>
+            </div>
+            <div style="margin-bottom:12px; padding:10px 12px; background:#fafbfd; border-radius:var(--radius-md); border-left:4px solid #059669;">
+              👑 <b>3. รางวัลปิดฤดูกาล (Season Final):</b><br>
+              มอบเงินรางวัลใหญ่และเกียรติยศให้ผู้มีคะแนนรวมสูงสุดตลอดฤดูกาล อันดับ 1 (5,000 ฿), อันดับ 2 (2,500 ฿), อันดับ 3 (1,200 ฿)
+            </div>
+            <div style="padding:10px 12px; background:#fafbfd; border-radius:var(--radius-md); border-left:4px solid #64748b;">
+              ⚖️ <b>4. กฎกรณีคะแนนเท่ากัน:</b><br>
+              หากคะแนนสูงสุดเท่ากัน เงินรางวัลในรอบนั้นๆ จะถูกหารแบ่งเท่าๆ กันระหว่างผู้ชนะ
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 7. PAGE: ADMIN ================= -->
+      <section id="page-admin" class="hidden">
+        <div class="page-head">
+          <h1>⚙️ แผงควบคุมแอดมิน (Admin Panel 🔓)</h1>
+          <button class="btn btn-sm btn-danger-outline" onclick="lockAdmin()">🔒 ล็อคแอดมิน</button>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, rgba(56,0,60,0.05) 0%, rgba(0,255,133,0.08) 100%); border: 1.5px solid rgba(0,255,133,0.4);">
+          <div class="card-header">
+            <div class="card-title">⚡ ดึงคะแนนสดอัตโนมัติ (Mobile 1-Click Sync)</div>
+            <span class="badge badge-gw">League: 1576349</span>
+          </div>
+          <p style="font-size:13px; color:var(--pl-text); line-height:1.6; margin-bottom:12px;">
+            📱 <b>กดปุ่มนี้เพื่อดึงผลคะแนนและอันดับล่าสุดจาก Official FPL API บนมือถือได้ทันที</b> โดยไม่ต้องเปิดคอมพิวเตอร์ ระบบจะอัปเดตคะแนนลง Firebase ให้ทุกคนเห็นผลสดพร้อมกัน
+          </p>
+          <button class="btn btn-primary" id="btnSyncMobile" onclick="triggerMobileFplSync()" style="width:100%; padding:12px; font-size:14px; font-weight:700; background: linear-gradient(135deg, var(--pl-purple) 0%, var(--pl-purple-light) 100%);">
+            🔄 กดดึงคะแนนสดเดี๋ยวนี้ (Sync FPL Live)
+          </button>
+          <div id="syncProgressText" style="font-size:12px; color:var(--pl-text-muted); margin-top:8px; display:none; text-align:center; font-weight:500;"></div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, rgba(56,0,60,0.04) 0%, rgba(4,245,255,0.06) 100%); border-color: rgba(56,0,60,0.15);">
+          <div class="card-header">
+            <div class="card-title">💻 ซิงค์ผ่านคอมพิวเตอร์ (Desktop 1-Click Sync)</div>
+            <span class="badge badge-gw">sync_fpl.bat</span>
+          </div>
+          <p style="font-size:13px; color:var(--pl-text); line-height:1.6; margin-bottom:12px;">
+            หรือดับเบิลคลิกไฟล์ <b>sync_fpl.bat</b> บนคอมพิวเตอร์ เพื่อดึงคะแนนตรง 100% ไม่ผ่าน Proxy หรือนำเข้าไฟล์ <b>fpl_data.json</b>
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <input type="file" id="fplJsonFileInput" accept=".json" style="display:none;" onchange="importFplJson(event)">
+            <button class="btn btn-sm btn-primary" onclick="document.getElementById('fplJsonFileInput').click()">
+              📥 นำเข้าไฟล์คะแนนล่าสุด (fpl_data.json)
+            </button>
+          </div>
+        </div>
+
+        <!-- Pending Slips -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔍 ตรวจสอบสลิปโอนเงิน (<span id="adminPendingCount">0</span> รายการ)</div>
+          </div>
+          <div id="adminSlipsContainer"></div>
+        </div>
+
+        <!-- Update Scores Manually -->
+        <div class="card">
+          <div class="card-title">⚽ อัปเดตคะแนน Gameweek (กำหนดเอง)</div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; align-items:center;">
+            <select id="adminGwSelect" style="padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--pl-border); font-size:13px;">
+              <option value="gw1" selected>GW1</option>
+              <option value="gw2">GW2</option>
+              <option value="gw3">GW3</option>
+              <option value="gw4">GW4</option>
+            </select>
+            <select id="adminTeamSelect" style="padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--pl-border); font-size:13px;">
+            </select>
+            <input type="number" id="adminScoreInput" placeholder="คะแนน" style="width:90px; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--pl-border); font-size:13px;">
+            <button class="btn btn-sm btn-primary" onclick="adminSaveScore()">💾 บันทึกคะแนน</button>
+          </div>
+        </div>
+
+        <!-- Quick Reset / Actions -->
+        <div class="card">
+          <div class="card-title">⚙️ เครื่องมือจัดการข้อมูล</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+            <button class="btn btn-sm btn-danger-outline" onclick="resetAllData()">⚠️ รีเซ็ตข้อมูลเริ่มต้น</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Mobile Fixed Bottom Navigation -->
+  <nav class="bottom-nav" id="mobileBottomNav">
+    <button class="nav-item active" onclick="goTo('home')" id="bnav-home">
+      <span class="nav-icon">📊</span>
+      <span>หน้าหลัก</span>
+    </button>
+    <button class="nav-item" onclick="goTo('standings')" id="bnav-standings">
+      <span class="nav-icon">📈</span>
+      <span>คะแนน</span>
+    </button>
+    <button class="nav-item" onclick="goTo('finance')" id="bnav-finance">
+      <span class="nav-icon">💰</span>
+      <span>การเงิน</span>
+    </button>
+    <button class="nav-item" onclick="goTo('prizes')" id="bnav-prizes">
+      <span class="nav-icon">🏆</span>
+      <span>รางวัล</span>
+    </button>
+    <button class="nav-item" onclick="goTo('myteam')" id="bnav-myteam">
+      <span class="nav-icon">👤</span>
+      <span>ทีมฉัน</span>
+    </button>
+  </nav>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Admin PIN Modal (Password: 1234) -->
+  <div id="adminPinModal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🔒 เข้าสู่ระบบผู้ดูแล (Admin PIN)</h3>
+        <button class="btn-close" onclick="closeAdminPinModal()">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div style="font-size: 32px; margin-bottom: 6px;">🔐</div>
+        <p style="font-size: 13px; color: var(--pl-text-muted);">
+          กรุณากรอกรหัสผ่าน 4 หลัก เพื่อเข้าสู่หน้าจัดการระบบ
+        </p>
+        
+        <input type="password" id="adminPinInput" class="pin-input" maxlength="4" placeholder="••••" 
+          onkeydown="if(event.key==='Enter') submitAdminPin()">
+        
+        <div id="pinErrorMsg" style="color: #dc2626; font-size: 12px; height: 16px; margin-top: 4px;"></div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 10px;">
+        <button class="btn btn-sm" style="background:#e2e8f0; color:#334155; padding: 8px 16px;" onclick="closeAdminPinModal()">ยกเลิก</button>
+        <button class="btn btn-sm btn-primary" style="padding: 8px 20px;" onclick="submitAdminPin()">✓ ยืนยันรหัส</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Selection Modal -->
+  <div id="teamModal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>👤 เลือกทีมของคุณ</h3>
+        <button class="btn-close" onclick="closeTeamModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--pl-text-muted);">เลือกทีมของคุณเพื่อดูอันดับ คะแนน และสถานะการเงินส่วนตัว:</p>
+        <div class="team-select-grid" id="teamSelectGrid"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-sm btn-primary" onclick="confirmTeamModal()">ตกลง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slip Viewer Modal with Real Image Support -->
+  <div id="slipModal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🧾 ตรวจสอบหลักฐานสลิป</h3>
+        <button class="btn-close" onclick="closeSlipModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modalSlipPreviewContainer"></div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:10px; padding-top:10px; border-top:1px dashed var(--pl-border);">
+          <span style="color:var(--pl-text-muted);">ทีม:</span>
+          <b id="modalSlipTeam">ชื่อทีม</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:4px;">
+          <span style="color:var(--pl-text-muted);">ยอดเงิน:</span>
+          <b id="modalSlipAmount" style="color:#059669;">20.00 ฿</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:4px;">
+          <span style="color:var(--pl-text-muted);">เวลาที่โอน:</span>
+          <span id="modalSlipTime" style="color:var(--pl-text-muted);">-</span>
+        </div>
+      </div>
+      <div class="modal-footer" id="slipModalFooter">
+        <button class="btn btn-sm" style="background:#e2e8f0; color:#334155;" onclick="closeSlipModal()">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // 16 Real Teams from Fantasy Premier League (League 1576349)
+    const initialTeams = [
+  {
+    "id": 1,
+    "entry": 6890015,
+    "name": "Pikpiklok15",
+    "manager": "Kritchai Sangrung"
+  },
+  {
+    "id": 2,
+    "entry": 7624146,
+    "name": "GGmodel",
+    "manager": "Matheus Gamino"
+  },
+  {
+    "id": 3,
+    "entry": 7137452,
+    "name": "Mostttr",
+    "manager": "Ronnawat srisinlapanan"
+  },
+  {
+    "id": 4,
+    "entry": 7697566,
+    "name": "CTNS56",
+    "manager": "nuttapop saranrom"
+  },
+  {
+    "id": 5,
+    "entry": 8469721,
+    "name": "nakhonthai",
+    "manager": "Panithan Kitkat"
+  },
+  {
+    "id": 6,
+    "entry": 7504119,
+    "name": "spayja",
+    "manager": "Tharawit Chuangchit"
+  },
+  {
+    "id": 7,
+    "entry": 5122447,
+    "name": "PTrD",
+    "manager": "ภัทรเดช ธีระธํารงสุข"
+  },
+  {
+    "id": 8,
+    "entry": 7535911,
+    "name": "TNUniT€ol",
+    "manager": "thitiwoot nincham"
+  },
+  {
+    "id": 9,
+    "entry": 7522432,
+    "name": "อ้ายมาเอาคืน by BNz",
+    "manager": "Attachai Saisud"
+  },
+  {
+    "id": 10,
+    "entry": 7721086,
+    "name": "CHAILIBA_ARS",
+    "manager": "Chaiwat Srimek"
+  },
+  {
+    "id": 11,
+    "entry": 7996846,
+    "name": "rankung",
+    "manager": "Mixsarun Trovic"
+  },
+  {
+    "id": 12,
+    "entry": 6833017,
+    "name": "YOUNGGUNZEE",
+    "manager": "Younggun Zee"
+  },
+  {
+    "id": 13,
+    "entry": 7723562,
+    "name": "bufball_next",
+    "manager": "Thanutra Chettabut"
+  },
+  {
+    "id": 14,
+    "entry": 3311116,
+    "name": "Ntong Dkj",
+    "manager": "Athapon Panngern"
+  },
+  {
+    "id": 15,
+    "entry": 7544249,
+    "name": "PHATT",
+    "manager": "Naphat Thongwiset"
+  },
+  {
+    "id": 16,
+    "entry": 7589998,
+    "name": "Neyarm.xi",
+    "manager": "ภาคภูมิ ศีลธรรม"
+  }
+];
+    const initialScores = {
+  "1": {
+    "gw1": 93,
+    "gw2": 117,
+    "gw3": 30
+  },
+  "2": {
+    "gw1": 45,
+    "gw2": 115,
+    "gw3": 53
+  },
+  "3": {
+    "gw1": 77,
+    "gw2": 82,
+    "gw3": 30
+  },
+  "4": {
+    "gw1": 56,
+    "gw2": 87,
+    "gw3": 44
+  },
+  "5": {
+    "gw1": 55,
+    "gw2": 72,
+    "gw3": 60
+  },
+  "6": {
+    "gw1": 61,
+    "gw2": 81,
+    "gw3": 33
+  },
+  "7": {
+    "gw1": 64,
+    "gw2": 67,
+    "gw3": 31
+  },
+  "8": {
+    "gw1": 54,
+    "gw2": 93,
+    "gw3": 36
+  },
+  "9": {
+    "gw1": 54,
+    "gw2": 84,
+    "gw3": 50
+  },
+  "10": {
+    "gw1": 49,
+    "gw2": 86,
+    "gw3": 34
+  },
+  "11": {
+    "gw1": 57,
+    "gw2": 63,
+    "gw3": 39
+  },
+  "12": {
+    "gw1": 34,
+    "gw2": 76,
+    "gw3": 54
+  },
+  "13": {
+    "gw1": 46,
+    "gw2": 50,
+    "gw3": 46
+  },
+  "14": {
+    "gw1": 41,
+    "gw2": 94,
+    "gw3": 39
+  },
+  "15": {
+    "gw1": 40,
+    "gw2": 82,
+    "gw3": 31
+  },
+  "16": {
+    "gw1": 51,
+    "gw2": 48,
+    "gw3": 24
+  }
+};
+    let gwWinners = {
+  "1": 1,
+  "2": 1,
+  "3": 5
+};
+    const defaultLogs = [
+  {
+    "id": 1,
+    "time": "26 ส.ค. 2026 12:00 น.",
+    "icon": "⚽",
+    "title": "ซิงค์ข้อมูลเชื่อมต่อ Official FPL API (League ID: 1576349)",
+    "detail": "ดึงคะแนนและอันดับของทั้ง 16 ทีม พร้อมเปิดใช้งานระบบ 1-Click Sync บนมือถือ"
+  },
+  {
+    "id": 2,
+    "time": "26 ส.ค. 2026 11:30 น.",
+    "icon": "👑",
+    "title": "ประกาศผลผู้ชนะประจำสัปดาห์ GW1",
+    "detail": "ทีม Pikpiklok15 (Kritchai Sangrung) คว้าอันดับ 1 ด้วยคะแนน 93 แต้ม รับเงินรางวัล 300 ฿ (ฟรีค่าเข้า)"
+  },
+  {
+    "id": 3,
+    "time": "26 ส.ค. 2026 11:00 น.",
+    "icon": "🔥",
+    "title": "เพิ่มกติการอบคะแนนรวมทุก 4 สัปดาห์ (4-Week Sprint)",
+    "detail": "เปิดระบบแข่งคะแนนรวม GW1–GW4 เรียกเก็บคนละ 50 ฿ (เงินรางวัลรอบละ 750 ฿ ผู้ชนะรับรางวัลและฟรีค่าเข้า)"
+  },
+  {
+    "id": 4,
+    "time": "26 ส.ค. 2026 10:00 น.",
+    "icon": "☁️",
+    "title": "เชื่อมต่อฐานข้อมูล Firebase Realtime Database (pl26-27)",
+    "detail": "เปิดใช้งานระบบ Cloud Realtime และรองรับการแนบสลิปผ่านมือถือ"
+  },
+  {
+    "id": 5,
+    "time": "20 ส.ค. 2026 00:00 น.",
+    "icon": "🎉",
+    "title": "เริ่มต้นเปิดฤดูกาล PIRUN Premier League 2026–2027",
+    "detail": "เปิดลีกแฟนตาซีพรีเมียร์ลีกอย่างเป็นทางการ รวมสมาชิกทั้งหมด 16 ทีม"
+  }
+];
+
+    function generateDefaultPayments() {
+      const p = { 1: [] };
+      initialTeams.forEach((t) => {
+        p[1].push({
+          teamId: t.id,
+          status: 'unpaid',
+          amount: 20,
+          slipUrl: '',
+          time: '-'
+        });
+      });
+      return p;
+    }
+
+    function ensurePayments() {
+      if (!payments) payments = {};
+      for (let gw = 1; gw <= currentActiveGW; gw++) {
+        if (!payments[gw] || !Array.isArray(payments[gw]) || payments[gw].length === 0) {
+          payments[gw] = teams.map(t => ({
+            teamId: t.id,
+            status: 'unpaid',
+            amount: 20,
+            slipUrl: '',
+            time: '-'
+          }));
+        }
+      }
+      if (currentActiveGW >= 4 && (!payments['block1'] || !Array.isArray(payments['block1']) || payments['block1'].length === 0)) {
+        payments['block1'] = teams.map(t => ({
+          teamId: t.id,
+          status: 'unpaid',
+          amount: 50,
+          slipUrl: '',
+          time: '-'
+        }));
+      }
+    }
+
+    const initialPayments = generateDefaultPayments();
+
+    // App State
+    let teams = JSON.parse(localStorage.getItem('pl_teams')) || initialTeams;
+    let scores = JSON.parse(localStorage.getItem('pl_scores')) || initialScores;
+    let payments = JSON.parse(localStorage.getItem('pl_payments')) || initialPayments;
+    let activityLogs = JSON.parse(localStorage.getItem('pl_logs')) || defaultLogs;
+    let selectedTeamId = parseInt(localStorage.getItem('pl_selected_team')) || 1;
+    let currentFinanceGW = 1;
+    let currentActiveGW = 1;
+    let tempSelectedTeamId = selectedTeamId || 1;
+    let loginSelectedId = selectedTeamId || 1;
+    let isAdminAuth = sessionStorage.getItem('pl_admin_auth') === '1';
+
+    // Firebase handles
+    let rtdb = null;
+    let storage = null;
+    let isCloudConnected = false;
+
+    function sanitizeData(obj) {
+      if (!obj) return null;
+      return JSON.parse(JSON.stringify(obj, (k, v) => (v === undefined ? null : v)));
+    }
+
+    function addActivityLog(icon, title, detail) {
+      const now = new Date();
+      const timeStr = now.getDate() + ' ส.ค. 2026 ' + now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ' น.';
+      const newLog = {
+        id: Date.now(),
+        time: timeStr,
+        icon: icon || '📌',
+        title: title,
+        detail: detail || ''
+      };
+      activityLogs.unshift(newLog);
+      if (activityLogs.length > 25) activityLogs.pop(); // Keep latest 25 logs
+      saveState();
+      renderActivityLogs();
+    }
+
+    function initFirebase() {
+      if (typeof window.isFirebaseReady === 'function' && window.isFirebaseReady()) {
+        try {
+          if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+          }
+          
+          if (firebaseConfig.databaseURL) {
+            rtdb = firebase.database();
+            console.log('🔥 Firebase Realtime Database Connected!');
+          }
+
+          try { storage = firebase.storage(); } catch(e) {}
+          
+          isCloudConnected = true;
+          const cloudBadge = document.getElementById('cloudLiveBadge');
+          if (cloudBadge) cloudBadge.classList.remove('hidden');
+
+          // Realtime Snapshot Listener from Realtime Database (RTDB)
+          if (rtdb) {
+            rtdb.ref('pirun_league_state').on('value', (snapshot) => {
+              const data = snapshot.val();
+              if (data) {
+                if (data.teams && Array.isArray(data.teams)) teams = data.teams.filter(Boolean);
+                if (data.scores) scores = data.scores;
+                if (data.payments) payments = data.payments;
+                if (data.gwWinners) gwWinners = data.gwWinners;
+                if (data.maxGW) currentActiveGW = data.maxGW;
+                if (data.activityLogs && Array.isArray(data.activityLogs)) activityLogs = data.activityLogs;
+                ensurePayments();
+                localStorage.setItem('pl_teams', JSON.stringify(teams));
+                localStorage.setItem('pl_scores', JSON.stringify(scores));
+                localStorage.setItem('pl_payments', JSON.stringify(payments));
+                localStorage.setItem('pl_logs', JSON.stringify(activityLogs));
+                renderAll();
+              } else {
+                saveToCloud();
+              }
+            }, (err) => {
+              console.warn('RTDB snapshot notice:', err.message);
+            });
+          }
+        } catch (err) {
+          console.error('Firebase setup notice:', err.message);
+        }
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('pl_teams', JSON.stringify(teams));
+      localStorage.setItem('pl_scores', JSON.stringify(scores));
+      localStorage.setItem('pl_payments', JSON.stringify(payments));
+      localStorage.setItem('pl_logs', JSON.stringify(activityLogs));
+      if (selectedTeamId) {
+        localStorage.setItem('pl_selected_team', selectedTeamId);
+      } else {
+        localStorage.removeItem('pl_selected_team');
+      }
+
+      if (isCloudConnected) {
+        saveToCloud();
+      }
+    }
+
+    function saveToCloud() {
+      if (!rtdb) return;
+      try {
+        const cleanTeams = sanitizeData(teams);
+        const cleanScores = sanitizeData(scores);
+        const cleanPayments = sanitizeData(payments);
+        const cleanWinners = sanitizeData(gwWinners);
+        const cleanLogs = sanitizeData(activityLogs);
+
+        rtdb.ref('pirun_league_state').set({
+          teams: cleanTeams,
+          scores: cleanScores,
+          payments: cleanPayments,
+          gwWinners: cleanWinners,
+          activityLogs: cleanLogs,
+          maxGW: currentActiveGW,
+          updatedAt: new Date().toISOString()
+        }).catch(e => console.warn('RTDB sync notice:', e.message));
+      } catch (err) {
+        console.warn('saveToCloud notice:', err.message);
+      }
+    }
+
+    /* Admin Password / PIN Check (PIN: 1234) */
+    function requestAdminAccess() {
+      if (isAdminAuth) {
+        goTo('admin');
+      } else {
+        document.getElementById('adminPinInput').value = '';
+        document.getElementById('pinErrorMsg').textContent = '';
+        document.getElementById('adminPinModal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('adminPinInput').focus(), 150);
+      }
+    }
+
+    function closeAdminPinModal() {
+      document.getElementById('adminPinModal').classList.add('hidden');
+    }
+
+    function submitAdminPin() {
+      const pin = document.getElementById('adminPinInput').value;
+      if (pin === '1234') {
+        isAdminAuth = true;
+        sessionStorage.setItem('pl_admin_auth', '1');
+        closeAdminPinModal();
+        goTo('admin');
+      } else {
+        document.getElementById('pinErrorMsg').textContent = '❌ รหัสผ่านไม่ถูกต้อง (รหัสเริ่มต้น: 1234)';
+        document.getElementById('adminPinInput').value = '';
+        document.getElementById('adminPinInput').focus();
+      }
+    }
+
+    function lockAdmin() {
+      isAdminAuth = false;
+      sessionStorage.removeItem('pl_admin_auth');
+      goTo('home');
+      alert('🔒 ออกจากระบบแอดมินเรียบร้อยแล้ว');
+    }
+
+    function renderLoginTeamGrid() {
+      const grid = document.getElementById('loginTeamGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      teams.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'login-team-option ' + (t.id === loginSelectedId ? 'selected' : '');
+        div.innerHTML = '<div class="team-opt-icon">⚽</div>' +
+          '<div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' +
+            '<div style="font-weight:600;">' + t.name + '</div>' +
+            '<div style="font-size:11px; opacity:0.8;">' + (t.manager || '') + '</div>' +
+          '</div>';
+        div.onclick = () => {
+          loginSelectedId = t.id;
+          document.querySelectorAll('.login-team-option').forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
+        };
+        grid.appendChild(div);
+      });
+    }
+
+    function confirmLoginTeam() {
+      if (!loginSelectedId) {
+        alert('กรุณาเลือกทีมของคุณก่อนเข้าสู่ระบบ');
+        return;
+      }
+      selectedTeamId = loginSelectedId;
+      tempSelectedTeamId = selectedTeamId;
+      saveState();
+      showAppMain();
+      renderAll();
+      goTo('home');
+    }
+
+    function continueAsGuest() {
+      selectedTeamId = 1;
+      tempSelectedTeamId = 1;
+      showAppMain();
+      renderAll();
+      goTo('home');
+    }
+
+    function showSelectScreen() {
+      document.getElementById('page-select').classList.remove('hidden');
+      document.getElementById('appMainWrapper').classList.add('hidden');
+      document.getElementById('mobileTopBar').classList.add('hidden');
+      document.getElementById('mobileBottomNav').classList.add('hidden');
+      renderLoginTeamGrid();
+    }
+
+    function showAppMain() {
+      document.getElementById('page-select').classList.add('hidden');
+      document.getElementById('appMainWrapper').classList.remove('hidden');
+      document.getElementById('mobileTopBar').classList.remove('hidden');
+      document.getElementById('mobileBottomNav').classList.remove('hidden');
+    }
+
+    function logoutToSelectScreen() {
+      openTeamModal();
+    }
+
+    function getTeamTotal(teamId) {
+      const s = scores[teamId] || {};
+      return Object.values(s).reduce((a, b) => a + (Number(b) || 0), 0);
+    }
+
+    function getSortedTeams() {
+      return [...teams].sort((a, b) => getTeamTotal(b.id) - getTeamTotal(a.id));
+    }
+
+    function get4WeekBlockScore(teamId, startGW, endGW) {
+      const s = scores[teamId] || {};
+      let total = 0;
+      for (let g = startGW; g <= endGW; g++) {
+        total += (Number(s['gw' + g]) || 0);
+      }
+      return total;
+    }
+
+    function get4WeekBlockWinner(startGW, endGW) {
+      let topScore = -1;
+      let winner = teams[0] || { name: 'กำลังแข่งขัน', id: 1 };
+      teams.forEach(t => {
+        const sc = get4WeekBlockScore(t.id, startGW, endGW);
+        if (sc > topScore) {
+          topScore = sc;
+          winner = t;
+        }
+      });
+      return { winner, score: topScore };
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderFullStandings();
+      renderFinanceTabs();
+      renderFinanceTable(currentFinanceGW);
+      renderPrizes();
+      renderMyTeam();
+      renderAdminSlips();
+      renderActivityLogs();
+      updateSidebarAndTopBar();
+      updateMyUploadCardUI();
+    }
+
+    /* Render Dynamic Activity Logs */
+    function renderActivityLogs() {
+      const container = document.getElementById('activityLogList');
+      if (!container) return;
+
+      const badge = document.getElementById('logCountBadge');
+      if (badge) badge.textContent = activityLogs.length + ' รายการ';
+
+      let html = '';
+      activityLogs.forEach(log => {
+        html += '<div style="display:flex; gap:12px; align-items:flex-start; padding:10px 12px; background:#fafbfd; border-radius:var(--radius-md); border:1px solid var(--pl-border-light);">' +
+          '<div style="font-size:20px; line-height:1; padding-top:2px;">' + (log.icon || '📝') + '</div>' +
+          '<div style="flex:1;">' +
+            '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">' +
+              '<div style="font-weight:600; font-size:13.5px; color:var(--pl-text);">' + log.title + '</div>' +
+              '<div style="font-size:11px; color:var(--pl-text-muted);">' + log.time + '</div>' +
+            '</div>' +
+            (log.detail ? '<div style="font-size:12px; color:var(--pl-text-muted); margin-top:3px; line-height:1.4;">' + log.detail + '</div>' : '') +
+          '</div>' +
+        '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    /* Page Navigation */
+    function goTo(pageId) {
+      if (pageId === 'admin' && !isAdminAuth) {
+        requestAdminAccess();
+        return;
+      }
+
+      document.querySelectorAll('main section').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById('page-' + pageId);
+      if (target) target.classList.remove('hidden');
+
+      // Update Desktop Sidebar
+      document.querySelectorAll('.sidebar-nav button').forEach(b => b.classList.remove('active'));
+      const activeNav = document.getElementById('nav-' + pageId);
+      if (activeNav) activeNav.classList.add('active');
+
+      // Update Mobile Bottom Nav
+      document.querySelectorAll('.bottom-nav .nav-item').forEach(b => b.classList.remove('active'));
+      const activeBNav = document.getElementById('bnav-' + pageId);
+      if (activeBNav) activeBNav.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Update Top Bar & Sidebar Team display */
+    function updateSidebarAndTopBar() {
+      const myTeam = teams.find(t => t.id === selectedTeamId) || teams[0];
+      const sorted = getSortedTeams();
+      const rank = sorted.findIndex(t => t.id === myTeam.id) + 1;
+      const totalScore = getTeamTotal(myTeam.id);
+
+      // Desktop sidebar
+      const sName = document.getElementById('sidebarTeamName');
+      if (sName) sName.textContent = myTeam.name;
+      const sRank = document.getElementById('sidebarTeamRank');
+      if (sRank) sRank.textContent = '#' + rank;
+      const sPts = document.getElementById('sidebarTeamPoints');
+      if (sPts) sPts.textContent = totalScore + ' แต้ม';
+
+      // Mobile Top Bar
+      const mName = document.getElementById('mobileActiveTeamName');
+      if (mName) mName.textContent = myTeam.name;
+    }
+
+    /* Render Dashboard with DYNAMIC columns for completed GWs only */
+    function renderDashboard() {
+      const sorted = getSortedTeams();
+      const table = document.getElementById('homeStandingsTable');
+      if (!table) return;
+      
+      // Update Hero Winner
+      const topWinner = sorted[0];
+      if (topWinner) {
+        const topScore = getTeamTotal(topWinner.id);
+        const reward = ((teams.length - 1) * 20) + ' ฿';
+        const wName = document.getElementById('heroWinnerName');
+        if (wName) wName.textContent = topWinner.name;
+        const wRew = document.getElementById('heroWinnerReward');
+        if (wRew) wRew.innerHTML = 'รับเงินรางวัล <b>' + reward + '</b> (' + topScore + ' คะแนน)';
+      }
+
+      // Build header with only completed GWs
+      let html = '<thead><tr><th class="col-rank">#</th><th class="col-team">ทีม</th>';
+      for (let g = 1; g <= currentActiveGW; g++) {
+        html += '<th class="col-score">GW' + g + '</th>';
+      }
+      html += '<th class="col-score col-total">รวม</th></tr></thead><tbody>';
+
+      sorted.forEach((t, i) => {
+        const isMyTeam = t.id === selectedTeamId;
+        const s = scores[t.id] || {};
+        const medalClass = i === 0 ? 'medal-1' : (i === 1 ? 'medal-2' : (i === 2 ? 'medal-3' : ''));
+        html += '<tr class="' + (isMyTeam ? 'my-team-row' : '') + '" data-dashname="' + t.name.toLowerCase() + '">' +
+          '<td class="col-rank ' + medalClass + '">' + (i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : i + 1))) + '</td>' +
+          '<td class="col-team">' +
+            '<div style="font-weight:600;">' + t.name + ' ' + (isMyTeam ? '<span class="badge badge-gw" style="font-size:10px; padding:2px 6px;">ทีมฉัน</span>' : '') + '</div>' +
+            '<div style="font-size:11px; color:var(--pl-text-muted);">' + (t.manager || '') + '</div>' +
+          '</td>';
+        for (let g = 1; g <= currentActiveGW; g++) {
+          html += '<td class="col-score font-num">' + (s['gw' + g] || 0) + '</td>';
+        }
+        html += '<td class="col-score col-total font-num">' + getTeamTotal(t.id) + '</td></tr>';
+      });
+      html += '</tbody>';
+      table.innerHTML = html;
+
+      // Calculate Current Active GW Billing (Exempting Winner)
+      const currentGwPayments = payments[currentActiveGW] || [];
+      const curWinnerId = gwWinners[currentActiveGW] || 1;
+      let totalDue = 0, totalPaid = 0, totalUnpaid = 0, countPaid = 0, countPending = 0, countUnpaid = 0;
+      
+      currentGwPayments.forEach(p => {
+        if (p.teamId !== curWinnerId) {
+          totalDue += p.amount;
+          if (p.status === 'paid') { totalPaid += p.amount; countPaid++; }
+          else if (p.status === 'pending') { totalUnpaid += p.amount; countPending++; }
+          else { totalUnpaid += p.amount; countUnpaid++; }
+        }
+      });
+
+      const winnerTeam = teams.find(t => t.id === curWinnerId) || teams[0];
+      const cardTitle = document.getElementById('dashFinanceCardTitle');
+      if (cardTitle) cardTitle.textContent = '💰 สรุปการเงิน GW' + currentActiveGW + ' (15 ทีม x 20 บาท · ผู้ชนะ ' + winnerTeam.name + ' รับ 300 ฿)';
+
+      const sDue = document.getElementById('statTotalDue');
+      if (sDue) sDue.textContent = totalDue.toLocaleString();
+      const sPaid = document.getElementById('statTotalPaid');
+      if (sPaid) sPaid.textContent = totalPaid.toLocaleString();
+      const sUnpaid = document.getElementById('statTotalUnpaid');
+      if (sUnpaid) sUnpaid.textContent = totalUnpaid.toLocaleString();
+      
+      const cPaid = document.getElementById('countPaid');
+      if (cPaid) cPaid.textContent = countPaid;
+      const cPending = document.getElementById('countPending');
+      if (cPending) cPending.textContent = countPending;
+      const cUnpaid = document.getElementById('countUnpaid');
+      if (cUnpaid) cUnpaid.textContent = countUnpaid;
+
+      // My Team Quick Card on Home
+      const myTeam = teams.find(t => t.id === selectedTeamId) || teams[0];
+      const rank = sorted.findIndex(t => t.id === myTeam.id) + 1;
+      const mTitle = document.getElementById('homeMyTeamTitle');
+      if (mTitle) mTitle.textContent = myTeam.name;
+      const mRank = document.getElementById('homeMyRank');
+      if (mRank) mRank.textContent = 'อันดับ ' + rank;
+      const mScore = document.getElementById('homeMyScore');
+      if (mScore) mScore.textContent = getTeamTotal(myTeam.id) + ' แต้ม';
+
+      const isMyWinner = (selectedTeamId === curWinnerId);
+      const myCurrentP = currentGwPayments.find(x => x.teamId === selectedTeamId);
+      const mPend = document.getElementById('homeMyPending');
+      if (mPend) {
+        if (isMyWinner) {
+          mPend.innerHTML = '<span style="color:#059669; font-weight:700;">+300 ฿ (ชนะ)</span>';
+        } else {
+          const myPendingCurrent = (myCurrentP && myCurrentP.status === 'paid') ? 0 : 20;
+          mPend.textContent = myPendingCurrent + ' ฿';
+        }
+      }
+    }
+
+    function filterDashboardTable() {
+      const query = (document.getElementById('dashboardSearchInput').value || '').toLowerCase();
+      document.querySelectorAll('#homeStandingsTable tbody tr').forEach(row => {
+        const name = row.getAttribute('data-dashname') || '';
+        row.style.display = name.includes(query) ? '' : 'none';
+      });
+    }
+
+    /* Render Full Standings */
+    function renderFullStandings() {
+      const sorted = getSortedTeams();
+      const table = document.getElementById('fullStandingsTable');
+      if (!table) return;
+      
+      let html = '<thead><tr><th class="col-rank">#</th><th class="col-team">ทีม</th>';
+      for (let g = 1; g <= currentActiveGW; g++) {
+        html += '<th class="col-score">GW' + g + '</th>';
+      }
+      html += '<th class="col-score col-total">รวม</th></tr></thead><tbody>';
+
+      sorted.forEach((t, i) => {
+        const isMyTeam = t.id === selectedTeamId;
+        const s = scores[t.id] || {};
+        const medalClass = i === 0 ? 'medal-1' : (i === 1 ? 'medal-2' : (i === 2 ? 'medal-3' : ''));
+        html += '<tr class="' + (isMyTeam ? 'my-team-row' : '') + '" data-teamname="' + t.name.toLowerCase() + '">' +
+          '<td class="col-rank ' + medalClass + '">' + (i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : i + 1))) + '</td>' +
+          '<td class="col-team">' +
+            '<div style="font-weight:600;">' + t.name + ' ' + (isMyTeam ? '<span class="badge badge-gw" style="font-size:10px; padding:2px 6px;">ฉัน</span>' : '') + '</div>' +
+            '<div style="font-size:11px; color:var(--pl-text-muted);">' + (t.manager || '') + '</div>' +
+          '</td>';
+        for (let g = 1; g <= currentActiveGW; g++) {
+          html += '<td class="col-score font-num">' + (s['gw' + g] || 0) + '</td>';
+        }
+        html += '<td class="col-score col-total font-num">' + getTeamTotal(t.id) + '</td></tr>';
+      });
+      html += '</tbody>';
+      table.innerHTML = html;
+    }
+
+    function filterStandingsTable() {
+      const query = (document.getElementById('tableSearchInput').value || '').toLowerCase();
+      document.querySelectorAll('#fullStandingsTable tbody tr').forEach(row => {
+        const name = row.getAttribute('data-teamname') || '';
+        row.style.display = name.includes(query) ? '' : 'none';
+      });
+    }
+
+    /* Dynamic Finance Tabs */
+    function renderFinanceTabs() {
+      const container = document.getElementById('financeFilterTabs');
+      if (!container) return;
+      
+      let html = '';
+      for (let g = 1; g <= currentActiveGW; g++) {
+        const isActive = currentFinanceGW === g;
+        html += '<button class="filter-tab ' + (isActive ? 'active' : '') + '" onclick="switchFinanceTab(' + g + ')" id="tab-gw' + g + '">GW' + g + ' (20฿)</button>';
+      }
+
+      // Show 4-Week Block only if completed (maxGW >= 4)
+      if (currentActiveGW >= 4) {
+        const isBlockActive = currentFinanceGW === 'block1';
+        html += '<button class="filter-tab ' + (isBlockActive ? 'active' : '') + '" onclick="switchFinanceTab(\'block1\')" id="tab-block1" style="border-color:#f59e0b; color:#d97706; font-weight:600;">🏆 รอบ 4 สัปดาห์ GW1-4 (เก็บ 50฿)</button>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    /* Switch Finance Tab */
+    function switchFinanceTab(tabKey) {
+      currentFinanceGW = tabKey;
+      renderFinanceTabs();
+
+      const title = document.getElementById('financeCardTitle');
+      const sub = document.getElementById('financeCardSub');
+
+      if (tabKey === 'block1') {
+        const b1 = get4WeekBlockWinner(1, 4);
+        const totalPool = (teams.length - 1) * 50;
+        if (title) title.textContent = '🏆 รอบ 4 สัปดาห์ (GW1–GW4) — เรียกเก็บ 50 บาท/ทีม';
+        if (sub) sub.textContent = '🔥 ผู้ชนะรอบ 4 สัปดาห์: ' + b1.winner.name + ' (' + b1.score + ' แต้ม) · 👥 15 ทีมจ่าย · 💵 เงินรางวัล ' + totalPool + ' บาท (ผู้ชนะฟรี)';
+      } else {
+        const gw = tabKey;
+        const winnerId = gwWinners[gw] || 1;
+        const winner = teams.find(t => t.id === winnerId) || teams[0];
+        const totalPool = (teams.length - 1) * 20;
+        if (title) title.textContent = 'GW' + gw + ' — รายการเรียกเก็บ 20 บาท/ทีม';
+        if (sub) sub.textContent = '🏆 ผู้ชนะ: ' + winner.name + ' · 👥 15 ทีมจ่าย · 💵 เงินรางวัล ' + totalPool + ' บาท (ผู้ชนะฟรี)';
+      }
+
+      renderFinanceTable(tabKey);
+    }
+
+    function renderFinanceTable(gw) {
+      const table = document.getElementById('financeTable');
+      if (!table) return;
+
+      // Ensure payment array exists for this week
+      if (!payments[gw]) {
+        payments[gw] = [];
+        const amt = gw === 'block1' ? 50 : 20;
+        teams.forEach(t => {
+          payments[gw].push({
+            teamId: t.id,
+            status: 'unpaid',
+            amount: amt,
+            slipUrl: '',
+            time: '-'
+          });
+        });
+      }
+
+      const list = payments[gw] || [];
+      const winnerId = (gw === 'block1') ? get4WeekBlockWinner(1, 4).winner.id : (gwWinners[gw] || 1);
+      const isBlock = (gw === 'block1');
+      const feePerTeam = isBlock ? 50 : 20;
+      const winnerReward = (teams.length - 1) * feePerTeam;
+      
+      let html = '<thead><tr><th class="col-team">ทีม</th><th class="col-score">จำนวนเงิน</th><th>สถานะ</th><th style="text-align:center;">หลักฐาน</th></tr></thead><tbody>';
+
+      list.forEach(p => {
+        const team = teams.find(t => t.id === p.teamId) || { name: 'Unknown' };
+        const isMyTeam = p.teamId === selectedTeamId;
+        const isWinner = p.teamId === winnerId;
+
+        let amountDisplay = p.amount + ' ฿';
+        let badge = '';
+        let slipBtn = '';
+
+        if (isWinner) {
+          amountDisplay = '<span style="color:#f59e0b; font-weight:700;">ฟรี (ผู้ชนะ)</span>';
+          badge = '<span class="badge badge-winner">🏆 ผู้ชนะ (รับรางวัล ' + winnerReward + ' ฿)</span>';
+          slipBtn = '<span style="color:#d97706; font-size:12px; font-weight:600;">🎉 รับเงินรางวัล</span>';
+        } else {
+          if (p.status === 'paid') badge = '<span class="badge badge-paid">✓ ชำระแล้ว</span>';
+          else if (p.status === 'pending') badge = '<span class="badge badge-pending">⏳ รอตรวจ</span>';
+          else badge = '<span class="badge badge-unpaid">✕ ยังไม่จ่าย</span>';
+
+          slipBtn = p.status !== 'unpaid' 
+            ? '<button class="slip-btn" onclick="openSlipModal(\'' + team.name + '\', \'' + p.amount + ' ฿\', \'' + p.time + '\', ' + p.teamId + ', \'' + gw + '\')">ดูสลิป 🔍</button>' 
+            : '<span style="color:var(--pl-text-light); font-size:12px;">—</span>';
+        }
+
+        html += '<tr class="' + (isMyTeam ? 'my-team-row' : '') + '" style="' + (isWinner ? 'background:rgba(255,215,0,0.06);' : '') + '">' +
+          '<td class="col-team">' +
+            '<div style="font-weight:600;">' + team.name + ' ' + (isWinner ? '👑' : '') + ' ' + (isMyTeam ? '<span class="badge badge-gw" style="font-size:10px; padding:2px 6px;">ฉัน</span>' : '') + '</div>' +
+            '<div style="font-size:11px; color:var(--pl-text-muted);">' + (team.manager || '') + '</div>' +
+          '</td>' +
+          '<td class="col-score font-num" style="font-weight:600;">' + amountDisplay + '</td>' +
+          '<td>' + badge + '</td>' +
+          '<td style="text-align:center;">' + slipBtn + '</td>' +
+        '</tr>';
+      });
+      html += '</tbody>';
+      table.innerHTML = html;
+    }
+
+    /* Render Prizes Page */
+    function renderPrizes() {
+      const gwContainer = document.getElementById('gwPrizeList');
+      if (gwContainer) {
+        let html = '';
+        const pool = ((teams.length - 1) * 20) + ' ฿';
+        for (let gw = 1; gw <= currentActiveGW; gw++) {
+          const winnerId = gwWinners[gw] || 1;
+          const winner = teams.find(t => t.id === winnerId) || teams[0];
+          const s = scores[winner.id] || {};
+          const gwScore = s['gw' + gw] || 0;
+          html += '<div class="prize-item gw">' +
+            '<div class="prize-badge">🏆</div>' +
+            '<div class="prize-content">' +
+              '<div class="prize-title">Gameweek ' + gw + ' Winner</div>' +
+              '<div class="prize-winner">ผู้ชนะ: <b>' + winner.name + '</b> (' + gwScore + ' คะแนน)</div>' +
+            '</div>' +
+            '<div class="prize-cash">' + pool + '</div>' +
+          '</div>';
+        }
+        gwContainer.innerHTML = html;
+      }
+
+      const blockContainer = document.getElementById('blockPrizeList');
+      if (blockContainer) {
+        if (currentActiveGW >= 4) {
+          const b1 = get4WeekBlockWinner(1, 4);
+          const blockPool = ((teams.length - 1) * 50) + ' ฿';
+          blockContainer.innerHTML = '<div class="prize-item month">' +
+            '<div class="prize-badge">🔥</div>' +
+            '<div class="prize-content">' +
+              '<div class="prize-title">รอบ 4 สัปดาห์แรก (GW1–GW4 Winner)</div>' +
+              '<div class="prize-winner">ผู้ชนะคะแนนรวม 4 สัปดาห์: <b>' + b1.winner.name + '</b> (' + b1.score + ' คะแนน)</div>' +
+            '</div>' +
+            '<div class="prize-cash">' + blockPool + '</div>' +
+          '</div>';
+        } else {
+          blockContainer.innerHTML = '<div class="prize-item month" style="opacity:0.85;">' +
+            '<div class="prize-badge">⏳</div>' +
+            '<div class="prize-content">' +
+              '<div class="prize-title">รอบ 4 สัปดาห์แรก (GW1–GW4)</div>' +
+              '<div class="prize-winner">กำลังแข่งขัน (สรุปผลและมอบรางวัล 750 ฿ เมื่อจบ GW4)</div>' +
+            '</div>' +
+            '<div class="prize-cash">750 ฿</div>' +
+          '</div>';
+        }
+      }
+    }
+
+    /* Render My Team Page */
+    function renderMyTeam() {
+      const myTeam = teams.find(t => t.id === selectedTeamId) || teams[0];
+      const sorted = getSortedTeams();
+      const rank = sorted.findIndex(t => t.id === myTeam.id) + 1;
+      const s = scores[myTeam.id] || {};
+      const total = getTeamTotal(myTeam.id);
+
+      const pName = document.getElementById('myPageTeamName');
+      if (pName) pName.textContent = '👤 ' + myTeam.name;
+      const pRank = document.getElementById('myPageTeamRank');
+      if (pRank) pRank.textContent = 'ผู้จัดการ: ' + (myTeam.manager || '-') + ' · อันดับที่ ' + rank + ' จากทั้งหมด ' + teams.length + ' ทีม (' + total + ' คะแนน)';
+
+      // Render scores container for completed GWs only
+      const scoresContainer = document.getElementById('myTeamScoresContainer');
+      if (scoresContainer) {
+        let html = '';
+        for (let g = 1; g <= currentActiveGW; g++) {
+          html += '<div class="stat-item">' +
+            '<span class="stat-label">GW' + g + '</span>' +
+            '<span class="stat-value font-num">' + (s['gw' + g] || 0) + ' คะแนน</span>' +
+          '</div>';
+        }
+        if (currentActiveGW >= 4) {
+          const b1Score = get4WeekBlockScore(myTeam.id, 1, 4);
+          html += '<div class="stat-item" style="background: rgba(56,0,60,0.03); padding: 8px 6px; border-radius: var(--radius-sm);">' +
+            '<span class="stat-label" style="font-weight:600; color:var(--pl-purple);">🔥 รวม 4 สัปดาห์ (GW1-4)</span>' +
+            '<span class="stat-value font-num" style="color:var(--pl-purple); font-weight:700;">' + b1Score + ' คะแนน</span>' +
+          '</div>';
+        }
+        html += '<div class="stat-item">' +
+          '<span class="stat-label" style="font-weight:700;">คะแนนรวมทั้งหมด</span>' +
+          '<span class="stat-value font-num" style="color:var(--pl-purple); font-size:17px; font-weight:700;">' + total + ' คะแนน</span>' +
+        '</div>';
+        scoresContainer.innerHTML = html;
+      }
+
+      // Render financial breakdown for completed weeks only (with winner exemption)
+      const finContainer = document.getElementById('myTeamFinanceBreakdown');
+      if (finContainer) {
+        let html = '';
+        for (let g = 1; g <= currentActiveGW; g++) {
+          const isWinnerThisGW = (gwWinners[g] === selectedTeamId);
+          const p = (payments[g] || []).find(x => x.teamId === selectedTeamId) || { status: 'unpaid', amount: 20 };
+          
+          let badge = '';
+          if (isWinnerThisGW) {
+            badge = '<span class="badge badge-winner">🏆 ชนะ GW' + g + ' (รับ 300 ฿ · ฟรี)</span>';
+          } else if (p.status === 'paid') {
+            badge = '<span class="badge badge-paid">✓ ชำระแล้ว 20 ฿</span>';
+          } else if (p.status === 'pending') {
+            badge = '<span class="badge badge-pending">⏳ รอตรวจ 20 ฿</span>';
+          } else {
+            badge = '<span class="badge badge-unpaid">✕ ค้างชำระ 20 ฿</span>';
+          }
+
+          html += '<div class="stat-item">' +
+            '<div>' +
+              '<span class="stat-label">⚽ Gameweek ' + g + '</span>' +
+              '<span style="font-size:12px; color:var(--pl-text-muted); margin-left:4px;">' + (isWinnerThisGW ? '(ไม่ต้องจ่าย)' : '(20 ฿)') + '</span>' +
+            '</div>' +
+            '<div>' + badge + '</div>' +
+          '</div>';
+        }
+
+        if (currentActiveGW >= 4) {
+          const b1Winner = get4WeekBlockWinner(1, 4).winner;
+          const isB1Winner = (b1Winner.id === selectedTeamId);
+          const pBlock = (payments['block1'] || []).find(x => x.teamId === selectedTeamId) || { status: 'unpaid', amount: 50 };
+          
+          let badge = '';
+          if (isB1Winner) {
+            badge = '<span class="badge badge-winner">🏆 ชนะรอบ 4 สัปดาห์ (รับ 750 ฿ · ฟรี)</span>';
+          } else if (pBlock.status === 'paid') {
+            badge = '<span class="badge badge-paid">✓ ชำระแล้ว 50 ฿</span>';
+          } else if (pBlock.status === 'pending') {
+            badge = '<span class="badge badge-pending">⏳ รอตรวจ 50 ฿</span>';
+          } else {
+            badge = '<span class="badge badge-unpaid">✕ ค้างชำระ 50 ฿</span>';
+          }
+
+          html += '<div class="stat-item" style="background: rgba(245,158,11,0.05); padding: 8px 6px; border-radius: var(--radius-sm);">' +
+            '<div>' +
+              '<span class="stat-label" style="font-weight:600; color:#d97706;">🏆 รอบ 4 สัปดาห์ (GW1-4)</span>' +
+              '<span style="font-size:12px; color:var(--pl-text-muted); margin-left:4px;">' + (isB1Winner ? '(ไม่ต้องจ่าย)' : '(50 ฿)') + '</span>' +
+            '</div>' +
+            '<div>' + badge + '</div>' +
+          '</div>';
+        }
+
+        finContainer.innerHTML = html;
+      }
+
+      // Populate upload dropdown with only active/completed weeks
+      const select = document.getElementById('mySlipGwSelect');
+      if (select) {
+        const curVal = select.value || '1';
+        let optHtml = '';
+        for (let g = 1; g <= currentActiveGW; g++) {
+          optHtml += '<option value="' + g + '" ' + (curVal == g ? 'selected' : '') + '>⚽ Gameweek ' + g + ' (ยอด 20 บาท)</option>';
+        }
+        if (currentActiveGW >= 4) {
+          optHtml += '<option value="block1" ' + (curVal === 'block1' ? 'selected' : '') + '>🏆 รอบ 4 สัปดาห์ GW1-4 (ยอด 50 บาท)</option>';
+        }
+        select.innerHTML = optHtml;
+      }
+    }
+
+    function updateMyUploadCardUI() {
+      const select = document.getElementById('mySlipGwSelect');
+      if (!select) return;
+      const val = select.value;
+      const prompt = document.getElementById('myUploadRoundPrompt');
+      if (!prompt) return;
+
+      const isWinnerThisGW = (val === 'block1') 
+        ? (get4WeekBlockWinner(1, 4).winner.id === selectedTeamId)
+        : (gwWinners[val] === selectedTeamId);
+
+      if (isWinnerThisGW) {
+        prompt.innerHTML = '<div style="color:#059669; font-weight:600; background:#ecfdf5; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid #d1fae5;">🎉 <b>ยินดีด้วย! คุณเป็นผู้ชนะในรอบนี้</b> ได้รับเงินรางวัลรวม ' + (val === 'block1' ? '750 ฿' : '300 ฿') + ' (ไม่ต้องโอนเงิน / ไม่ต้องแนบสลิป)</div>';
+      } else {
+        if (val === 'block1') {
+          prompt.innerHTML = 'รายการชำระ: <b style="color:#d97706;">🏆 รอบ 4 สัปดาห์ (GW1-4) · ยอด 50 บาท</b> (พร้อมเพย์: 08x-xxx-xxxx)';
+        } else {
+          prompt.innerHTML = 'รายการชำระ: <b style="color:var(--pl-purple);">Gameweek ' + val + ' · ยอด 20 บาท</b> (พร้อมเพย์: 08x-xxx-xxxx)';
+        }
+      }
+    }
+
+    /* Real Slip Upload for Selected Round */
+    async function handleSlipUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const select = document.getElementById('mySlipGwSelect');
+      const targetGW = select ? select.value : '1';
+      const targetAmount = targetGW === 'block1' ? 50 : 20;
+
+      const team = teams.find(t => t.id === selectedTeamId) || { name: 'My Team' };
+      const uploadText = document.getElementById('uploadStatusText');
+      if (uploadText) uploadText.textContent = '⏳ กำลังอัปโหลดสลิปขึ้น Firebase Cloud...';
+
+      let slipUrl = '';
+
+      // Upload to Firebase Storage if configured
+      if (isCloudConnected && storage) {
+        try {
+          const fileExt = file.name.split('.').pop() || 'jpg';
+          const storageRef = storage.ref('slips/gw' + targetGW + '/team_' + selectedTeamId + '_' + Date.now() + '.' + fileExt);
+          const snapshot = await storageRef.put(file);
+          slipUrl = await snapshot.ref.getDownloadURL();
+        } catch (err) {
+          console.warn('Storage upload notice:', err.message);
+        }
+      }
+
+      // Fallback to Base64 for offline preview if needed
+      if (!slipUrl) {
+        slipUrl = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Update payment record in targeted GW
+      if (!payments[targetGW]) payments[targetGW] = [];
+      let p = payments[targetGW].find(x => x.teamId === selectedTeamId);
+      if (!p) {
+        p = { teamId: selectedTeamId, amount: targetAmount };
+        payments[targetGW].push(p);
+      }
+
+      p.status = 'pending';
+      p.amount = targetAmount;
+      p.slipUrl = slipUrl;
+      const now = new Date();
+      p.time = now.getDate() + ' ส.ค. 2026 ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ' น.';
+      
+      addActivityLog('📤', 'แนบสลิปชำระเงิน (' + team.name + ')', 'แจ้งโอนเงินในรอบ ' + (targetGW === 'block1' ? '4 สัปดาห์ (50 ฿)' : 'GW' + targetGW + ' (20 ฿)') + ' สถานะรอแอดมินตรวจสอบ');
+      saveState();
+      renderAll();
+      alert('✅ อัปโหลดสลิปสำหรับทีม ' + team.name + ' ในรอบ ' + (targetGW === 'block1' ? '4 สัปดาห์ (50 ฿)' : 'GW' + targetGW + ' (20 ฿)') + ' เรียบร้อยแล้ว! สถานะเปลี่ยนเป็น \'รอตรวจ\'');
+
+      if (uploadText) uploadText.textContent = 'แตะที่นี่เพื่อเลือกรูปภาพสลิปโอนเงิน';
+    }
+
+    /* Admin Slips Review */
+    function renderAdminSlips() {
+      const container = document.getElementById('adminSlipsContainer');
+      if (!container) return;
+      const allPending = [];
+
+      Object.keys(payments || {}).forEach(k => {
+        (payments[k] || []).forEach(p => {
+          if (p.status === 'pending') {
+            allPending.push({ ...p, gw: k });
+          }
+        });
+      });
+
+      const pCount = document.getElementById('adminPendingCount');
+      if (pCount) pCount.textContent = allPending.length;
+
+      if (allPending.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:var(--pl-text-muted); padding:16px;">' +
+          '✅ ไม่มีสลิปรอตรวจสอบในขณะนี้' +
+        '</div>';
+        return;
+      }
+
+      let html = '';
+      allPending.forEach(p => {
+        const team = teams.find(t => t.id === p.teamId) || { name: 'Unknown' };
+        html += '<div class="admin-slip-card">' +
+          '<div class="info">' +
+            '<div class="team">' + team.name + '</div>' +
+            '<div class="meta">' + (p.gw === 'block1' ? 'รอบ 4 สัปดาห์ (GW1-4)' : 'GW' + p.gw) + ' · ยอด ' + p.amount + ' ฿ · เวลา: ' + p.time + '</div>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<button class="slip-btn" onclick="openSlipModal(\'' + team.name + '\', \'' + p.amount + ' ฿\', \'' + p.time + '\', ' + p.teamId + ', \'' + p.gw + '\')">ดูสลิป 🔍</button>' +
+            '<button class="btn btn-sm btn-success" onclick="adminApproveSlip(' + p.teamId + ', \'' + p.gw + '\')">✓ อนุมัติ</button>' +
+            '<button class="btn btn-sm btn-danger-outline" onclick="adminRejectSlip(' + p.teamId + ', \'' + p.gw + '\')">✕ ปฏิเสธ</button>' +
+          '</div>' +
+        '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function adminApproveSlip(teamId, gw) {
+      const p = (payments[gw] || []).find(x => x.teamId === teamId);
+      const team = teams.find(t => t.id === teamId) || { name: 'ทีม #' + teamId };
+      if (p) {
+        p.status = 'paid';
+        addActivityLog('✅', 'อนุมัติการชำระเงิน (' + team.name + ')', 'แอดมินยืนยันยอดชำระ ' + p.amount + ' ฿ ในรอบ ' + (gw === 'block1' ? '4 สัปดาห์' : 'GW' + gw));
+        saveState();
+        renderAll();
+        closeSlipModal();
+        alert('อนุมัติสลิปเรียบร้อยแล้ว!');
+      }
+    }
+
+    function adminRejectSlip(teamId, gw) {
+      const p = (payments[gw] || []).find(x => x.teamId === teamId);
+      const team = teams.find(t => t.id === teamId) || { name: 'ทีม #' + teamId };
+      if (p) {
+        p.status = 'unpaid';
+        addActivityLog('❌', 'ปฏิเสธสลิป (' + team.name + ')', 'แอดมินปฏิเสธสลิปในรอบ ' + (gw === 'block1' ? '4 สัปดาห์' : 'GW' + gw) + ' (แจ้งให้ผู้เล่นส่งใหม่)');
+        saveState();
+        renderAll();
+        closeSlipModal();
+        alert('ปฏิเสธสลิปเรียบร้อย (แจ้งให้ผู้เล่นส่งใหม่)');
+      }
+    }
+
+    function populateAdminTeamSelect() {
+      const select = document.getElementById('adminTeamSelect');
+      if (!select) return;
+      select.innerHTML = '';
+      teams.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = '#' + t.id + ' ' + t.name + ' (' + (t.manager || '') + ')';
+        select.appendChild(opt);
+      });
+    }
+
+    function adminSaveScore() {
+      const gw = document.getElementById('adminGwSelect').value;
+      const teamId = parseInt(document.getElementById('adminTeamSelect').value);
+      const scoreVal = parseInt(document.getElementById('adminScoreInput').value);
+
+      if (isNaN(scoreVal)) {
+        alert('กรุณากรอกคะแนนเป็นตัวเลข');
+        return;
+      }
+
+      if (!scores[teamId]) scores[teamId] = {};
+      scores[teamId][gw] = scoreVal;
+
+      addActivityLog('✏️', 'อัปเดตคะแนน ' + gw.toUpperCase(), 'กำหนดคะแนนให้ ' + teams.find(t=>t.id===teamId).name + ' = ' + scoreVal + ' แต้ม');
+      saveState();
+      renderAll();
+      alert('บันทึกคะแนน ' + gw.toUpperCase() + ' ให้ทีม ' + teams.find(t=>t.id===teamId).name + ' = ' + scoreVal + ' แต้ม เรียบร้อย!');
+    }
+
+    function importFplJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          if (json.teams && json.scores) {
+            teams = json.teams;
+            scores = json.scores;
+            if (json.gwWinners) gwWinners = json.gwWinners;
+            if (json.maxGW) currentActiveGW = json.maxGW;
+            addActivityLog('📥', 'นำเข้าไฟล์คะแนน FPL ล่าสุด', 'อัปเดตคะแนนทั้ง 16 ทีม ถึง GW' + currentActiveGW);
+            saveState();
+            populateAdminTeamSelect();
+            renderAll();
+            alert('นำเข้าข้อมูลสำเร็จ! พบ ' + teams.length + ' ทีม พร้อมคะแนน FPL ล่าสุด (แข่งจบถึง GW' + currentActiveGW + ')');
+          } else {
+            alert('รูปแบบไฟล์ JSON ไม่ถูกต้อง');
+          }
+        } catch (err) {
+          alert('เกิดข้อผิดพลาดในการอ่านไฟล์ JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAllData() {
+      if (confirm('คุณต้องการรีเซ็ตข้อมูลทั้งหมดกลับเป็นค่าเริ่มต้นใช่หรือไม่?')) {
+        localStorage.clear();
+        teams = initialTeams;
+        scores = initialScores;
+        payments = generateDefaultPayments();
+        activityLogs = defaultLogs;
+        selectedTeamId = 1;
+        saveState();
+        renderAll();
+        openTeamModal();
+        alert('รีเซ็ตข้อมูลสำเร็จ');
+      }
+    }
+
+    /* Modal Handlers */
+    function openTeamModal() {
+      tempSelectedTeamId = selectedTeamId || 1;
+      const grid = document.getElementById('teamSelectGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      teams.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'team-select-item ' + (t.id === tempSelectedTeamId ? 'selected' : '');
+        div.textContent = t.name;
+        div.onclick = () => {
+          tempSelectedTeamId = t.id;
+          document.querySelectorAll('.team-select-item').forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
+        };
+        grid.appendChild(div);
+      });
+      document.getElementById('teamModal').classList.remove('hidden');
+    }
+
+    function closeTeamModal() {
+      document.getElementById('teamModal').classList.add('hidden');
+    }
+
+    function confirmTeamModal() {
+      selectedTeamId = tempSelectedTeamId;
+      loginSelectedId = selectedTeamId;
+      saveState();
+      renderAll();
+      closeTeamModal();
+    }
+
+    function openSlipModal(teamName, amount, time, teamId, gw) {
+      document.getElementById('modalSlipTeam').textContent = teamName;
+      document.getElementById('modalSlipAmount').textContent = amount;
+      document.getElementById('modalSlipTime').textContent = time || '25 ส.ค. 2026 19:42 น.';
+
+      const p = (payments[gw] || []).find(x => x.teamId === teamId);
+      const previewContainer = document.getElementById('modalSlipPreviewContainer');
+      
+      if (p && p.slipUrl) {
+        previewContainer.innerHTML = '<div style="text-align:center; background:#0f172a; padding:12px; border-radius:var(--radius-md); margin-bottom:12px;">' +
+          '<img src="' + p.slipUrl + '" alt="หลักฐานสลิปโอนเงิน" style="max-width:100%; max-height:340px; border-radius:6px; object-fit:contain; box-shadow:0 4px 12px rgba(0,0,0,0.3);" />' +
+          '<div style="margin-top:6px; font-size:11px;">' +
+            '<a href="' + p.slipUrl + '" target="_blank" style="color:var(--pl-cyan); text-decoration:underline;">🔍 แตะเพื่อดูรูปขนาดเต็ม</a>' +
+          '</div>' +
+        '</div>';
+      } else {
+        previewContainer.innerHTML = '<div class="slip-mockup">' +
+          '<div class="bank-logo">🏦</div>' +
+          '<div style="font-size:12px; color:var(--pl-text-muted);">โอนเงินสำเร็จผ่าน Mobile Banking</div>' +
+          '<div class="slip-amount">' + amount + '</div>' +
+          '<div style="font-size:13px; font-weight:600; margin-top:6px;">' + teamName + '</div>' +
+          '<div style="font-size:11px; color:var(--pl-text-muted); margin-top:2px;">' + (time || '25 ส.ค. 2026 19:42 น.') + '</div>' +
+        '</div>';
+      }
+
+      const footer = document.getElementById('slipModalFooter');
+      footer.innerHTML = '<button class="btn btn-sm" style="background:#e2e8f0; color:#334155;" onclick="closeSlipModal()">ปิด</button>' +
+        (teamId && gw && isAdminAuth ? 
+          '<button class="btn btn-sm btn-success" onclick="adminApproveSlip(' + teamId + ', \'' + gw + '\')">✓ อนุมัติ</button>' +
+          '<button class="btn btn-sm btn-danger-outline" onclick="adminRejectSlip(' + teamId + ', \'' + gw + '\')">✕ ปฏิเสธ</button>' 
+          : '');
+
+      document.getElementById('slipModal').classList.remove('hidden');
+    }
+
+    function closeSlipModal() {
+      document.getElementById('slipModal').classList.add('hidden');
+    }
+
+    /* Mobile 1-Click Sync Engine via Cloud Refresh & Direct Proxy Fallback */
+    async function triggerMobileFplSync() {
+      const btn = document.getElementById('btnSyncMobile');
+      const prog = document.getElementById('syncProgressText');
+      
+      if (btn) btn.disabled = true;
+      if (prog) {
+        prog.style.display = 'block';
+        prog.style.color = 'var(--pl-purple)';
+        prog.textContent = '⏳ กำลังดึงข้อมูลล่าสุดจาก Firebase Cloud...';
+      }
+
+      // 1. First refresh latest state from Firebase Realtime Database
+      let rtdbRefreshed = false;
+      if (rtdb) {
+        try {
+          const snapshot = await rtdb.ref('pirun_league_state').once('value');
+          const data = snapshot.val();
+          if (data) {
+            if (data.teams && Array.isArray(data.teams)) teams = data.teams.filter(Boolean);
+            if (data.scores) scores = data.scores;
+            if (data.payments) payments = data.payments;
+            if (data.gwWinners) gwWinners = data.gwWinners;
+            if (data.maxGW) currentActiveGW = data.maxGW;
+            if (data.activityLogs && Array.isArray(data.activityLogs)) activityLogs = data.activityLogs;
+            ensurePayments();
+            localStorage.setItem('pl_teams', JSON.stringify(teams));
+            localStorage.setItem('pl_scores', JSON.stringify(scores));
+            localStorage.setItem('pl_payments', JSON.stringify(payments));
+            localStorage.setItem('pl_logs', JSON.stringify(activityLogs));
+            renderAll();
+            rtdbRefreshed = true;
+          }
+        } catch (e) {
+          console.warn('RTDB refresh notice:', e.message);
+        }
+      }
+
+      // 2. Attempt direct FPL API fetch via CORS proxies if reachable
+      const leagueId = 1576349;
+      const targetUrl = 'https://fantasy.premierleague.com/api/leagues-classic/' + leagueId + '/standings/';
+      const proxies = [
+        (url) => 'https://cors.eu.org/' + url,
+        (url) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+        (url) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url)
+      ];
+
+      async function fetchWithProxy(url) {
+        for (const p of proxies) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            const res = await fetch(p(url), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+              const text = await res.text();
+              const data = JSON.parse(text);
+              if (data) return data;
+            }
+          } catch (e) {}
+        }
+        return null;
+      }
+
+      try {
+        if (prog) prog.textContent = '⏳ กำลังทดสอบเชื่อมต่อ Official FPL API...';
+        const data = await fetchWithProxy(targetUrl);
+        if (data && data.standings && data.standings.results) {
+          const results = data.standings.results;
+          const newTeams = [];
+          const newScores = {};
+          let newMaxGW = 1;
+
+          for (let i = 0; i < results.length; i++) {
+            const r = results[i];
+            const teamId = i + 1;
+            newTeams.push({
+              id: teamId,
+              entry: r.entry,
+              name: r.entry_name,
+              manager: r.player_name
+            });
+
+            if (prog) prog.textContent = '⏳ กำลังดึงคะแนน [' + (i + 1) + '/' + results.length + '] ' + r.entry_name + '...';
+
+            try {
+              const histUrl = 'https://fantasy.premierleague.com/api/entry/' + r.entry + '/history/';
+              const hist = await fetchWithProxy(histUrl);
+              const gwMap = {};
+              if (hist && hist.current && hist.current.length > 0) {
+                hist.current.forEach(g => {
+                  gwMap['gw' + g.event] = g.points;
+                  if (g.event > newMaxGW) newMaxGW = g.event;
+                });
+              } else {
+                gwMap['gw1'] = r.event_total || r.total;
+              }
+              newScores[teamId] = gwMap;
+            } catch (err) {
+              newScores[teamId] = { gw1: r.event_total || r.total };
+            }
+          }
+
+          // Determine winners
+          const newWinners = {};
+          for (let gw = 1; gw <= newMaxGW; gw++) {
+            let topScore = -1;
+            let topTeamId = 1;
+            for (const t of newTeams) {
+              const sc = newScores[t.id]?.['gw' + gw] || 0;
+              if (sc > topScore) {
+                topScore = sc;
+                topTeamId = t.id;
+              }
+            }
+            newWinners[gw] = topTeamId;
+          }
+
+          teams = newTeams;
+          scores = newScores;
+          gwWinners = newWinners;
+          currentActiveGW = newMaxGW;
+          ensurePayments();
+
+          addActivityLog('⚡', 'ซิงค์คะแนนสดจาก FPL สำเร็จ', 'อัปเดตคะแนนทั้ง 16 ทีม ถึง GW' + newMaxGW + ' และบันทึกลง Firebase เรียบร้อย');
+          saveState();
+          renderAll();
+
+          if (prog) {
+            prog.textContent = '✅ ซิงค์ข้อมูลสำเร็จ 100%! อัปเดตถึง GW' + newMaxGW + ' เรียบร้อย';
+            prog.style.color = '#059669';
+          }
+          alert('🎉 ซิงค์คะแนน FPL บนมือถือสำเร็จเรียบร้อยแล้ว! (อัปเดตถึง GW' + newMaxGW + ')');
+          return;
+        }
+
+        // FPL blocks CORS proxies directly on browsers, fall back to RTDB refresh
+        if (rtdbRefreshed) {
+          if (prog) {
+            prog.textContent = '☁️ ซิงค์ข้อมูลล่าสุดจาก Firebase เรียบร้อย (GW' + currentActiveGW + ')';
+            prog.style.color = '#059669';
+          }
+          alert('☁️ รีเฟรชข้อมูลจาก Firebase Cloud สำเร็จ! (อัปเดตถึง GW' + currentActiveGW + ')\n\n💡 แนะนำ: หากต้องการดึงคะแนนสัปดาห์ใหม่จาก Official FPL API ให้ดับเบิลคลิกไฟล์ sync_fpl.bat บนคอมพิวเตอร์ (เพียง 2 วินาที) แล้วข้อมูลจะซิงค์ขึ้น Cloud ให้มือถือทุกคนทันทีครับ!');
+        } else {
+          throw new Error('ไม่สามารถเชื่อมต่อ Proxy ได้ในขณะนี้');
+        }
+      } catch (err) {
+        if (prog) {
+          prog.textContent = '💡 แนะนำ: ดับเบิลคลิก sync_fpl.bat บนคอมพิวเตอร์เพื่อดึงคะแนนสด';
+          prog.style.color = '#d97706';
+        }
+        alert('💡 คำแนะนำการซิงค์คะแนน:\n\nเบราว์เซอร์บนมือถือถูกระบบความปลอดภัย FPL บล็อก CORS\n👉 ให้ดับเบิลคลิกไฟล์ sync_fpl.bat บนคอมพิวเตอร์ของคุณ ระบบจะดึงคะแนนสดตรง 100% ภายใน 2 วินาที และอัปเดตขึ้น Cloud ให้มือถือทุกคนทันทีครับ!');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // App Initialization
+    function init() {
+      initFirebase();
+      populateAdminTeamSelect();
+      showAppMain();
+      renderAll();
+      goTo('home');
+
+      // Auto popup Team Selection modal on open
+      setTimeout(() => {
+        openTeamModal();
+      }, 100);
+    }
+
+    // Start App
+    init();
+
+  </script>
+</body>
+</html>

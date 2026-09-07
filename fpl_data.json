@@ -1,0 +1,586 @@
+{
+  "updatedAt": "2026-09-07T07:47:42.428Z",
+  "leagueId": 1576349,
+  "leagueName": "PIRUN_League_2027",
+  "maxGW": 3,
+  "gwWinners": {
+    "1": 1,
+    "2": 1,
+    "3": 5
+  },
+  "teams": [
+    {
+      "id": 1,
+      "entry": 6890015,
+      "name": "Pikpiklok15",
+      "manager": "Kritchai Sangrung"
+    },
+    {
+      "id": 2,
+      "entry": 7624146,
+      "name": "GGmodel",
+      "manager": "Matheus Gamino"
+    },
+    {
+      "id": 3,
+      "entry": 7137452,
+      "name": "Mostttr",
+      "manager": "Ronnawat srisinlapanan"
+    },
+    {
+      "id": 4,
+      "entry": 7697566,
+      "name": "CTNS56",
+      "manager": "nuttapop saranrom"
+    },
+    {
+      "id": 5,
+      "entry": 8469721,
+      "name": "nakhonthai",
+      "manager": "Panithan Kitkat"
+    },
+    {
+      "id": 6,
+      "entry": 7504119,
+      "name": "spayja",
+      "manager": "Tharawit Chuangchit"
+    },
+    {
+      "id": 7,
+      "entry": 5122447,
+      "name": "PTrD",
+      "manager": "ภัทรเดช ธีระธํารงสุข"
+    },
+    {
+      "id": 8,
+      "entry": 7535911,
+      "name": "TNUniT€ol",
+      "manager": "thitiwoot nincham"
+    },
+    {
+      "id": 9,
+      "entry": 7522432,
+      "name": "อ้ายมาเอาคืน by BNz",
+      "manager": "Attachai Saisud"
+    },
+    {
+      "id": 10,
+      "entry": 7721086,
+      "name": "CHAILIBA_ARS",
+      "manager": "Chaiwat Srimek"
+    },
+    {
+      "id": 11,
+      "entry": 7996846,
+      "name": "rankung",
+      "manager": "Mixsarun Trovic"
+    },
+    {
+      "id": 12,
+      "entry": 6833017,
+      "name": "YOUNGGUNZEE",
+      "manager": "Younggun Zee"
+    },
+    {
+      "id": 13,
+      "entry": 7723562,
+      "name": "bufball_next",
+      "manager": "Thanutra Chettabut"
+    },
+    {
+      "id": 14,
+      "entry": 3311116,
+      "name": "Ntong Dkj",
+      "manager": "Athapon Panngern"
+    },
+    {
+      "id": 15,
+      "entry": 7544249,
+      "name": "PHATT",
+      "manager": "Naphat Thongwiset"
+    },
+    {
+      "id": 16,
+      "entry": 7589998,
+      "name": "Neyarm.xi",
+      "manager": "ภาคภูมิ ศีลธรรม"
+    }
+  ],
+  "scores": {
+    "1": {
+      "gw1": 93,
+      "gw2": 117,
+      "gw3": 30
+    },
+    "2": {
+      "gw1": 45,
+      "gw2": 115,
+      "gw3": 53
+    },
+    "3": {
+      "gw1": 77,
+      "gw2": 82,
+      "gw3": 30
+    },
+    "4": {
+      "gw1": 56,
+      "gw2": 87,
+      "gw3": 44
+    },
+    "5": {
+      "gw1": 55,
+      "gw2": 72,
+      "gw3": 60
+    },
+    "6": {
+      "gw1": 61,
+      "gw2": 81,
+      "gw3": 33
+    },
+    "7": {
+      "gw1": 64,
+      "gw2": 67,
+      "gw3": 31
+    },
+    "8": {
+      "gw1": 54,
+      "gw2": 93,
+      "gw3": 36
+    },
+    "9": {
+      "gw1": 54,
+      "gw2": 84,
+      "gw3": 50
+    },
+    "10": {
+      "gw1": 49,
+      "gw2": 86,
+      "gw3": 34
+    },
+    "11": {
+      "gw1": 57,
+      "gw2": 63,
+      "gw3": 39
+    },
+    "12": {
+      "gw1": 34,
+      "gw2": 76,
+      "gw3": 54
+    },
+    "13": {
+      "gw1": 46,
+      "gw2": 50,
+      "gw3": 46
+    },
+    "14": {
+      "gw1": 41,
+      "gw2": 94,
+      "gw3": 39
+    },
+    "15": {
+      "gw1": 40,
+      "gw2": 82,
+      "gw3": 31
+    },
+    "16": {
+      "gw1": 51,
+      "gw2": 48,
+      "gw3": 24
+    }
+  },
+  "payments": {
+    "1": [
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 1,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 2,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 3,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 4,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 5,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 6,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 7,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 8,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 9,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 10,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 11,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 12,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 13,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 14,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 15,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 16,
+        "time": "-"
+      }
+    ],
+    "2": [
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 1,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 2,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 3,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 4,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 5,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 6,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 7,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 8,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 9,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 10,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 11,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 12,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 13,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 14,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 15,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 16,
+        "time": "-"
+      }
+    ],
+    "3": [
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 1,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 2,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 3,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 4,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 5,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 6,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 7,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 8,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 9,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 10,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 11,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 12,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 13,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 14,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 15,
+        "time": "-"
+      },
+      {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 16,
+        "time": "-"
+      }
+    ]
+  },
+  "activityLogs": [
+    {
+      "id": 1788767262428,
+      "time": "7 ก.ย. 2569 14:47 น.",
+      "icon": "⚡",
+      "title": "ซิงค์คะแนนสด FPL สำเร็จ (ถึง GW3)",
+      "detail": "ดึงคะแนนล่าสุดทั้ง 16 ทีม และบันทึกขึ้น Firebase เรียบร้อย"
+    },
+    {
+      "detail": "ดึงคะแนนล่าสุดทั้ง 16 ทีม และบันทึกขึ้น Firebase เรียบร้อย",
+      "icon": "⚡",
+      "id": 1788767146044,
+      "time": "7 ก.ย. 2569 14:45 น.",
+      "title": "ซิงค์คะแนนสด FPL สำเร็จ (ถึง GW3)"
+    },
+    {
+      "detail": "ดึงคะแนนและอันดับของทั้ง 16 ทีม พร้อมเปิดใช้งานระบบ 1-Click Sync บนมือถือ",
+      "icon": "⚽",
+      "id": 1,
+      "time": "26 ส.ค. 2026 12:00 น.",
+      "title": "ซิงค์ข้อมูลเชื่อมต่อ Official FPL API (League ID: 1576349)"
+    },
+    {
+      "detail": "ทีม Pikpiklok15 (Kritchai Sangrung) คว้าอันดับ 1 ด้วยคะแนน 93 แต้ม รับเงินรางวัล 300 ฿ (ฟรีค่าเข้า)",
+      "icon": "👑",
+      "id": 2,
+      "time": "26 ส.ค. 2026 11:30 น.",
+      "title": "ประกาศผลผู้ชนะประจำสัปดาห์ GW1"
+    },
+    {
+      "detail": "เปิดระบบแข่งคะแนนรวม GW1–GW4 เรียกเก็บคนละ 50 ฿ (เงินรางวัลรอบละ 750 ฿ ผู้ชนะรับรางวัลและฟรีค่าเข้า)",
+      "icon": "🔥",
+      "id": 3,
+      "time": "26 ส.ค. 2026 11:00 น.",
+      "title": "เพิ่มกติการอบคะแนนรวมทุก 4 สัปดาห์ (4-Week Sprint)"
+    },
+    {
+      "detail": "เปิดใช้งานระบบ Cloud Realtime และรองรับการแนบสลิปผ่านมือถือ",
+      "icon": "☁️",
+      "id": 4,
+      "time": "26 ส.ค. 2026 10:00 น.",
+      "title": "เชื่อมต่อฐานข้อมูล Firebase Realtime Database (pl26-27)"
+    },
+    {
+      "detail": "เปิดลีกแฟนตาซีพรีเมียร์ลีกอย่างเป็นทางการ รวมสมาชิกทั้งหมด 16 ทีม",
+      "icon": "🎉",
+      "id": 5,
+      "time": "20 ส.ค. 2026 00:00 น.",
+      "title": "เริ่มต้นเปิดฤดูกาล PIRUN Premier League 2026–2027"
+    }
+  ]
+}
