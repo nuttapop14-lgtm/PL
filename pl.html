@@ -1940,14 +1940,36 @@
 
     const initialPayments = generateDefaultPayments();
 
+    function getMaxGWFromScores(sc) {
+      if (!sc) return 1;
+      let max = 1;
+      Object.values(sc).forEach(teamGw => {
+        if (teamGw && typeof teamGw === 'object') {
+          Object.keys(teamGw).forEach(k => {
+            const match = k.match(/^gw(\d+)$/);
+            if (match) {
+              const num = parseInt(match[1]);
+              if (num > max) max = num;
+            }
+          });
+        }
+      });
+      return max;
+    }
+
     // App State
     let teams = JSON.parse(localStorage.getItem('pl_teams')) || initialTeams;
-    let scores = JSON.parse(localStorage.getItem('pl_scores')) || initialScores;
+    let cachedScores = JSON.parse(localStorage.getItem('pl_scores'));
+    // If initialScores has newer data than cache, use initialScores
+    let scores = initialScores;
+    if (cachedScores && getMaxGWFromScores(cachedScores) >= getMaxGWFromScores(initialScores)) {
+      scores = cachedScores;
+    }
     let payments = JSON.parse(localStorage.getItem('pl_payments')) || initialPayments;
     let activityLogs = JSON.parse(localStorage.getItem('pl_logs')) || defaultLogs;
     let selectedTeamId = parseInt(localStorage.getItem('pl_selected_team')) || 1;
-    let currentFinanceGW = 1;
-    let currentActiveGW = 1;
+    let currentActiveGW = getMaxGWFromScores(scores);
+    let currentFinanceGW = currentActiveGW;
     let tempSelectedTeamId = selectedTeamId || 1;
     let loginSelectedId = selectedTeamId || 1;
     let isAdminAuth = sessionStorage.getItem('pl_admin_auth') === '1';
@@ -2282,15 +2304,22 @@
       const table = document.getElementById('homeStandingsTable');
       if (!table) return;
       
-      // Update Hero Winner
-      const topWinner = sorted[0];
-      if (topWinner) {
-        const topScore = getTeamTotal(topWinner.id);
+      // Update Hero Badges and Winner
+      const heroGwBadge = document.getElementById('heroGwBadge');
+      if (heroGwBadge) heroGwBadge.textContent = '✨ GW ล่าสุด: GW' + currentActiveGW;
+
+      const heroWinnerTag = document.getElementById('heroWinnerTag');
+      if (heroWinnerTag) heroWinnerTag.textContent = 'ผู้ชนะประจำสัปดาห์ (GW' + currentActiveGW + ' Winner)';
+
+      const curWinnerId = gwWinners[currentActiveGW] || (sorted[0] ? sorted[0].id : 1);
+      const curWinnerTeam = teams.find(t => t.id === curWinnerId) || sorted[0];
+      if (curWinnerTeam) {
+        const curWinnerScore = scores[curWinnerTeam.id]?.['gw' + currentActiveGW] || 0;
         const reward = ((teams.length - 1) * 20) + ' ฿';
         const wName = document.getElementById('heroWinnerName');
-        if (wName) wName.textContent = topWinner.name;
+        if (wName) wName.textContent = curWinnerTeam.name;
         const wRew = document.getElementById('heroWinnerReward');
-        if (wRew) wRew.innerHTML = 'รับเงินรางวัล <b>' + reward + '</b> (' + topScore + ' คะแนน)';
+        if (wRew) wRew.innerHTML = 'รับเงินรางวัล <b>' + reward + '</b> (' + curWinnerScore + ' คะแนน)';
       }
 
       // Build header with only completed GWs
@@ -2320,7 +2349,6 @@
 
       // Calculate Current Active GW Billing (Exempting Winner)
       const currentGwPayments = payments[currentActiveGW] || [];
-      const curWinnerId = gwWinners[currentActiveGW] || 1;
       let totalDue = 0, totalPaid = 0, totalUnpaid = 0, countPaid = 0, countPending = 0, countUnpaid = 0;
       
       currentGwPayments.forEach(p => {
