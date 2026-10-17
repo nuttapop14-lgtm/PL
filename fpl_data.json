@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-17T14:31:35.502Z",
+  "updatedAt": "2026-10-17T18:00:01.131Z",
   "leagueId": 1576349,
   "leagueName": "PIRUN_League_2027",
   "maxGW": 7,
@@ -10,7 +10,7 @@
     "4": 5,
     "5": 2,
     "6": 3,
-    "7": 10
+    "7": 3
   },
   "teams": [
     {
@@ -118,7 +118,7 @@
       "gw4": 80,
       "gw5": 34,
       "gw6": 67,
-      "gw7": 8
+      "gw7": 32
     },
     "2": {
       "gw1": 45,
@@ -127,7 +127,7 @@
       "gw4": 81,
       "gw5": 68,
       "gw6": 66,
-      "gw7": 10
+      "gw7": 38
     },
     "3": {
       "gw1": 77,
@@ -136,7 +136,7 @@
       "gw4": 68,
       "gw5": 67,
       "gw6": 86,
-      "gw7": 12
+      "gw7": 49
     },
     "4": {
       "gw1": 56,
@@ -145,7 +145,7 @@
       "gw4": 72,
       "gw5": 31,
       "gw6": 71,
-      "gw7": 11
+      "gw7": 24
     },
     "5": {
       "gw1": 55,
@@ -154,7 +154,7 @@
       "gw4": 90,
       "gw5": 38,
       "gw6": 77,
-      "gw7": 9
+      "gw7": 33
     },
     "6": {
       "gw1": 61,
@@ -163,7 +163,7 @@
       "gw4": 63,
       "gw5": 48,
       "gw6": 75,
-      "gw7": 9
+      "gw7": 40
     },
     "7": {
       "gw1": 64,
@@ -172,7 +172,7 @@
       "gw4": 72,
       "gw5": 35,
       "gw6": 52,
-      "gw7": 6
+      "gw7": 31
     },
     "8": {
       "gw1": 54,
@@ -181,7 +181,7 @@
       "gw4": 63,
       "gw5": 34,
       "gw6": 76,
-      "gw7": 5
+      "gw7": 34
     },
     "9": {
       "gw1": 54,
@@ -190,7 +190,7 @@
       "gw4": 42,
       "gw5": 43,
       "gw6": 32,
-      "gw7": 9
+      "gw7": 34
     },
     "10": {
       "gw1": 49,
@@ -199,7 +199,7 @@
       "gw4": 87,
       "gw5": 43,
       "gw6": 64,
-      "gw7": 19
+      "gw7": 30
     },
     "11": {
       "gw1": 57,
@@ -208,7 +208,7 @@
       "gw4": 79,
       "gw5": 50,
       "gw6": 63,
-      "gw7": 9
+      "gw7": 36
     },
     "12": {
       "gw1": 34,
@@ -217,7 +217,7 @@
       "gw4": 71,
       "gw5": 34,
       "gw6": 64,
-      "gw7": 7
+      "gw7": 45
     },
     "13": {
       "gw1": 46,
@@ -226,7 +226,7 @@
       "gw4": 73,
       "gw5": 53,
       "gw6": 53,
-      "gw7": 9
+      "gw7": 36
     },
     "14": {
       "gw1": 41,
@@ -235,7 +235,7 @@
       "gw4": 80,
       "gw5": 40,
       "gw6": 50,
-      "gw7": -3
+      "gw7": 24
     },
     "15": {
       "gw1": 40,
@@ -244,7 +244,7 @@
       "gw4": 31,
       "gw5": 41,
       "gw6": 43,
-      "gw7": 8
+      "gw7": 32
     },
     "16": {
       "gw1": 51,
@@ -253,7 +253,7 @@
       "gw4": 67,
       "gw5": 26,
       "gw6": 55,
-      "gw7": 6
+      "gw7": 12
     }
   },
   "payments": {
@@ -943,115 +943,115 @@
     ],
     "7": [
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 1,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 2,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 3,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 4,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 5,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 6,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 7,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 8,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 9,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 10,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 11,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 12,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 13,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 14,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
+        "amount": 20,
+        "slipUrl": "",
+        "status": "unpaid",
         "teamId": 15,
-        "status": "unpaid",
-        "amount": 20,
-        "slipUrl": "",
         "time": "-"
       },
       {
-        "teamId": 16,
-        "status": "unpaid",
         "amount": 20,
         "slipUrl": "",
+        "status": "unpaid",
+        "teamId": 16,
         "time": "-"
       }
     ],
@@ -1172,11 +1172,18 @@
   },
   "activityLogs": [
     {
-      "id": 1792247495502,
-      "time": "17 ต.ค. 2569 14:31 น.",
+      "id": 1792260001131,
+      "time": "17 ต.ค. 2569 18:00 น.",
       "icon": "⚡",
       "title": "ซิงค์คะแนนสด FPL สำเร็จ (ถึง GW7)",
       "detail": "ดึงคะแนนล่าสุดทั้ง 16 ทีม และบันทึกขึ้น Firebase เรียบร้อย"
+    },
+    {
+      "detail": "ดึงคะแนนล่าสุดทั้ง 16 ทีม และบันทึกขึ้น Firebase เรียบร้อย",
+      "icon": "⚡",
+      "id": 1792247495502,
+      "time": "17 ต.ค. 2569 14:31 น.",
+      "title": "ซิงค์คะแนนสด FPL สำเร็จ (ถึง GW7)"
     },
     {
       "detail": "ดึงคะแนนล่าสุดทั้ง 16 ทีม และบันทึกขึ้น Firebase เรียบร้อย",
@@ -1337,13 +1344,6 @@
       "icon": "⚡",
       "id": 1791760591190,
       "time": "11 ต.ค. 2569 23:16 น.",
-      "title": "ซิงค์คะแนนสด FPL สำเร็จ (ถึง GW6)"
-    },
-    {
-      "detail": "ดึงคะแนนล่าสุดทั้ง 16 ทีม และบันทึกขึ้น Firebase เรียบร้อย",
-      "icon": "⚡",
-      "id": 1791737558670,
-      "time": "11 ต.ค. 2569 16:52 น.",
       "title": "ซิงค์คะแนนสด FPL สำเร็จ (ถึง GW6)"
     }
   ]
